@@ -1,0 +1,15 @@
+{
+    "name": "@hypermint/client-sdk",
+    "description": "Client SDK for interacting with contracts",
+    "scripts": {
+        "watch": "webpack --watch",
+        "build": "webpack"
+    },
+    "dependencies": {
+        "expose-loader": "3.1.0",
+        "ts-loader": "9.2.8",
+        "webpack": "5.70.0",
+        "webpack-cli": "4.9.2",
+        "ethers": "5.5.4"
+    }
+}
