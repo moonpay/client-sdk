@@ -135,5 +135,9 @@
 
     await contract.waitForTransaction(transaction);
   }
+
+  async function openWidget(tokenId){
+    window.open(await contract.getMoonPayWidgetUrl(tokenId))
+  }
 </script>
 </body>
