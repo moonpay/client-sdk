@@ -1,8 +1,6 @@
 import { ethers } from 'ethers';
 import { EVMHelpers } from '../helpers/EVMHelpers';
 import { GenericHelpers } from '../helpers/GenericHelpers';
-import { HMAPI } from '../helpers/HMAPI';
-import { Logger } from '../helpers/Logger';
 import { Config } from '../types/Config';
 import { ContractInformation } from '../types/ContractInformation';
 import {
@@ -12,19 +10,16 @@ import {
 } from '../types/Enums';
 import { ERC1155, ERC721 } from '../types/EVMABIs';
 import { IContract } from '../types/IContract';
-import { Metadata } from '../types/Metadata';
-import { TokenInformation } from '../types/TokenInformation';
 import { Transaction } from '../types/Transaction';
+import { BaseContract } from './BaseContract';
 
 declare const window;
 
-export class EVMContract implements IContract {
-    private logger: Logger;
+export class EVMContract extends BaseContract implements IContract {
     private signer: ethers.Signer;
-    private contractInformation: ContractInformation;
 
     constructor(private config: Config) {
-        this.logger = new Logger(config);
+        super(config);
 
         const onChange = async () => {
             this.signer = undefined;
@@ -356,75 +351,6 @@ export class EVMContract implements IContract {
         return buyTransaction;
     }
 
-    public async getTokens(): Promise<TokenInformation[]> {
-        try {
-            this.logger.log('getTokens', 'Getting tokens from HM servers...');
-            const tokens = await HMAPI.getTokens(this.config);
-
-            this.logger.log('getTokens', 'Tokens found', false, tokens);
-
-            return tokens;
-        } catch (e) {
-            this.logger.log(
-                'getTokens',
-                `Failed to get tokens: ${e.message}`,
-                true,
-                e
-            );
-        }
-    }
-
-    public async getToken(tokenId: number): Promise<TokenInformation> {
-        try {
-            this.logger.log(
-                'getToken',
-                `Getting token ${tokenId} from HM servers...`
-            );
-
-            const token = await HMAPI.getToken(this.config, tokenId);
-
-            this.logger.log('getToken', 'Token found', false, token);
-
-            return token;
-        } catch (e) {
-            this.logger.log(
-                'getToken',
-                `Failed to get token ${tokenId}: ${e.message}`,
-                true,
-                e
-            );
-        }
-    }
-
-    public async getContractInformation(): Promise<ContractInformation> {
-        if (!this.contractInformation) {
-            this.logger.log(
-                'getContractInformation',
-                'Fetching contract information from HM servers...'
-            );
-
-            try {
-                this.contractInformation = await HMAPI.getContract(this.config);
-            } catch (e) {
-                this.logger.log(
-                    'getContractInformation',
-                    `Failed to get contract information: ${e.message}`,
-                    true,
-                    e
-                );
-            }
-        }
-
-        this.logger.log(
-            'getContractInformation',
-            'Contract information found',
-            false,
-            this.contractInformation
-        );
-
-        return this.contractInformation;
-    }
-
     public async transfer(
         to: string,
         tokenId: number,
@@ -458,56 +384,6 @@ export class EVMContract implements IContract {
         );
 
         return transaction;
-    }
-
-    public async getTokenMetadataUrl(tokenId: number): Promise<string> {
-        const contract = await this.getContractInformation();
-
-        const url =
-            this.config.contractType === NFTContractType.ERC721
-                ? `${contract.metadata.tokenUrl}${tokenId}`
-                : contract.metadata.tokenUrl.replace(
-                      '{id}',
-                      tokenId.toString()
-                  );
-
-        this.logger.log(
-            'getTokenMetadataUrl',
-            `Metadata url for ${tokenId}: ${url}`
-        );
-
-        return url;
-    }
-
-    public async getTokenMetadata(tokenId: number): Promise<Metadata> {
-        this.logger.log(
-            'getTokenMetadata',
-            `Getting metadata for ${tokenId}...`
-        );
-
-        const data = await (
-            await fetch(await this.getTokenMetadataUrl(tokenId))
-        ).json();
-
-        if (data) {
-            const keys = ['image'];
-
-            for (const key of keys) {
-                data[key] = data[key].replace(
-                    'ipfs://',
-                    'https://ipfs.io/ipfs/'
-                );
-            }
-        }
-
-        this.logger.log(
-            'getTokenMetadata',
-            `Metadata for ${tokenId}`,
-            false,
-            data
-        );
-
-        return data;
     }
 
     public async getTransactionStatus(
@@ -573,18 +449,6 @@ export class EVMContract implements IContract {
         );
 
         return status;
-    }
-
-    public async getMoonPayWidgetUrl(tokenId: number): Promise<string> {
-        const response = await fetch(
-            `https://api.hypermint.com/moonpay/widget/${this.config.contractId}/${tokenId}`
-        );
-
-        const url = await response.text();
-
-        this.logger.log('getMoonPayWidgetUrl', `MoonPay Widget Url: ${url}`);
-
-        return url;
     }
 
     private isPolygon(): boolean {
