@@ -4,7 +4,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import { terser } from 'rollup-plugin-terser';
 
 export default {
-    input: './src/client-sdk-evm.ts',
+    input: './src/client-sdk-solana.ts',
     output: {
         dir: 'dist',
         format: 'iife',

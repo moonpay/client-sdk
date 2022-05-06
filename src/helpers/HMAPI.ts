@@ -1,5 +1,6 @@
 import { Config } from '../types/Config';
 import { ContractInformation } from '../types/ContractInformation';
+import { BuyTokensRequest } from '../types/GetSolanaApproveInstruction';
 import { TokenInformation } from '../types/TokenInformation';
 
 export class HMAPI {
@@ -37,9 +38,36 @@ export class HMAPI {
     ): Promise<TokenInformation> {
         const url = `${HMAPI.getHMBaseUrl(config)}/client/contract/${
             config.contractId
-        }/tokens/:tokenId`;
+        }/tokens/${tokenId}`;
 
         return (await fetch(url)).json();
+    }
+
+    public static async getSolanaApproveInstruction(
+        config: Config,
+        destination: string,
+        tokenId = 1,
+        amount = 1
+    ) {
+        const url = `${HMAPI.getHMBaseUrl(config)}/client/buy-solana`;
+
+        const data: BuyTokensRequest = {
+            destination,
+            tokenId,
+            amount,
+            contractId: config.contractId
+        };
+
+        return (
+            await fetch(url, {
+                method: 'PUT',
+                mode: 'cors',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+        ).json();
     }
 
     private static getHMBaseUrl(config: Config) {

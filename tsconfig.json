@@ -1,11 +1,9 @@
 {
     "compilerOptions": {
-        "declaration": true,
         "lib": ["es6", "dom", "dom.iterable"],
         "module": "ESNext",
         "moduleResolution": "node",
         "removeComments": true,
-        "sourceMap": false,
         "strict": false,
         "target": "es6",
         "outDir": "./dist"

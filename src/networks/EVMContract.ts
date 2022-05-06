@@ -89,7 +89,7 @@ export class EVMContract extends BaseContract implements IContract {
         this.logger.log('connect', 'Connecting...');
 
         if (!window.ethereum) {
-            this.logger.log('connectEVM', 'MetaMask wallet not found', true);
+            this.logger.log('connect', 'MetaMask wallet not found', true);
         }
 
         const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -97,7 +97,7 @@ export class EVMContract extends BaseContract implements IContract {
 
         if (network.chainId !== this.config.networkChain) {
             this.logger.log(
-                'connectEVM',
+                'connect',
                 'Wrong network selected in MetaMask',
                 true
             );
@@ -106,7 +106,7 @@ export class EVMContract extends BaseContract implements IContract {
         const accounts = await provider.send('eth_requestAccounts', []);
 
         if (!accounts.length) {
-            this.logger.log('connectEVM', 'No MetaMask accounts found', true);
+            this.logger.log('connect', 'No MetaMask accounts found', true);
         }
 
         this.signer = provider.getSigner();
