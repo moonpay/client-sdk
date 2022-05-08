@@ -1,6 +1,6 @@
+import { BuyTokensRequest } from '../types/BuyTokensRequest';
 import { Config } from '../types/Config';
 import { ContractInformation } from '../types/ContractInformation';
-import { BuyTokensRequest } from '../types/GetSolanaApproveInstruction';
 import { TokenInformation } from '../types/TokenInformation';
 
 export class HMAPI {

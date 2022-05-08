@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import { HMAPI } from '../helpers/HMAPI';
 import { Config } from '../types/Config';
 import { NetworkEnvironment, TransactionStatus } from '../types/Enums';
@@ -34,7 +35,7 @@ export class SolanaContract extends BaseContract implements IContract {
             signature.publicKey = new solanaWeb3.PublicKey(signature.publicKey);
 
             if (signature.signature) {
-                signature.signature = signature.signature.data;
+                signature.signature = Buffer.from(signature.signature.data);
             }
         }
 
@@ -62,9 +63,18 @@ export class SolanaContract extends BaseContract implements IContract {
         const connection = this.getConnection();
 
         this.logger.log('buy', 'Prompting for signature...');
-        const { signature } = await window.solana.signAndSendTransaction(
+
+        console.log(transaction);
+
+        const signedTransaction = await window.solana.signTransaction(
             transaction
         );
+
+        const signature = await connection.sendRawTransaction(
+            signedTransaction.serialize()
+        );
+
+        console.log(signature);
 
         await connection.confirmTransaction(signature);
 

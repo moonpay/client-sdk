@@ -14,7 +14,8 @@ export default {
     context: 'window',
     plugins: [
         nodeResolve({
-            preferBuiltins: true
+            preferBuiltins: false,
+            browser: true
         }),
         typescript(),
         commonjs(),
