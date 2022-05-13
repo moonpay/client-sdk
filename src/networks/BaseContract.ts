@@ -2,7 +2,12 @@ import { HMAPI } from '../helpers/HMAPI';
 import { Logger } from '../helpers/Logger';
 import { Config } from '../types/Config';
 import { ContractInformation } from '../types/ContractInformation';
-import { NFTContractType } from '../types/Enums';
+import {
+    NetworkChain,
+    NetworkEnvironment,
+    NetworkType,
+    NFTContractType
+} from '../types/Enums';
 import { Metadata } from '../types/Metadata';
 import { TokenInformation } from '../types/TokenInformation';
 
@@ -141,5 +146,32 @@ export class BaseContract {
         );
 
         return url;
+    }
+
+    public getTransactionExplorerUrl(hash: string): string {
+        if (this._config.networkType === NetworkType.Solana) {
+            return `https://solscan.io/tx/${hash}${
+                this._config.networkEnvironment === NetworkEnvironment.Testnet
+                    ? '?cluster=devnet'
+                    : ''
+            }`;
+        }
+
+        switch (this._config.networkChain) {
+            case NetworkChain.EVMLocal:
+                return `https://etherscan.io/tx/${hash}`;
+            case NetworkChain.Ropsten:
+                return `https://ropsten.etherscan.io/tx/${hash}`;
+            case NetworkChain.Rinkeby:
+                return `https://rinkeby.etherscan.io/tx/${hash}`;
+            case NetworkChain.Polygon:
+                return `https://polygonscan.com/tx/${hash}`;
+            case NetworkChain.Mumbai:
+                return `https://mumbai.polygonscan.com/tx/${hash}`;
+            case NetworkChain.Ethereum:
+                return `https://etherscan.io/tx/${hash}`;
+            default:
+                return '';
+        }
     }
 }

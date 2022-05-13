@@ -67,6 +67,10 @@
           background: #2E3440;
           padding: 0 4px;
       }
+
+      a{
+          color: white !important;
+      }
   </style>
 
 </head>
@@ -133,6 +137,8 @@
     const transaction = await contract.buy(amount, tokenId);
 
     await contract.waitForTransaction(transaction);
+
+    logger('Transaction', `<a href="${contract.getTransactionExplorerUrl(transaction.hash)}" target="_blank">${transaction.hash}</a>`)
   }
 
   async function openWidget(tokenId){

@@ -64,21 +64,20 @@ export class SolanaContract extends BaseContract implements IContract {
 
         this.logger.log('buy', 'Prompting for signature...');
 
-        console.log(transaction);
-
         const signedTransaction = await window.solana.signTransaction(
             transaction
         );
 
+        this.logger.log('buy', 'Sending transaction...');
         const signature = await connection.sendRawTransaction(
             signedTransaction.serialize()
         );
 
-        console.log(signature);
-
+        this.logger.log('buy', 'Confirming transaction...');
         await connection.confirmTransaction(signature);
 
         this.logger.log('buy', `Done: ${signature}`);
+
         return {
             hash: signature
         };
