@@ -8,6 +8,7 @@
         "build-sol": "rollup -c rollup-solana.config.js"
     },
     "dependencies": {
+        "@solana/web3.js": "^1.42.0",
         "buffer": "^6.0.3",
         "ethers": "5.5.4"
     },
