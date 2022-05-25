@@ -72,6 +72,10 @@ export class BaseContract {
     }
 
     public async getContractInformation(): Promise<ContractInformation> {
+        if (this.contractInformation) {
+            return this.contractInformation;
+        }
+
         this.logger.log(
             'getContractInformation',
             'Fetching contract information from HM servers...'
@@ -96,6 +100,39 @@ export class BaseContract {
                 e
             );
         }
+    }
+
+    public async getContractMetadata(): Promise<Metadata> {
+        this.logger.log(
+            'getContractMetadata',
+            `Getting metadata for contract...`
+        );
+
+        const contract = await this.getContractInformation();
+
+        const data = await (
+            await fetch(await contract.metadata.contractUrl)
+        ).json();
+
+        if (data) {
+            const keys = ['image'];
+
+            for (const key of keys) {
+                data[key] = data[key].replace(
+                    'ipfs://',
+                    'https://ipfs.io/ipfs/'
+                );
+            }
+        }
+
+        this.logger.log(
+            'getContractMetadata',
+            `Metadata for contract`,
+            false,
+            data
+        );
+
+        return data;
     }
 
     public async getTokenMetadata(tokenId: number): Promise<Metadata> {
