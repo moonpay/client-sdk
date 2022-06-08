@@ -12,6 +12,7 @@ import { ERC1155, ERC721 } from '../types/EVMABIs';
 import { IContract } from '../types/IContract';
 import { Transaction } from '../types/Transaction';
 import { BaseContract } from './BaseContract';
+import { HMAPI } from '../helpers/HMAPI';
 
 declare const window;
 
@@ -256,12 +257,13 @@ export class EVMContract extends BaseContract implements IContract {
     }
 
     public async buyPresale(
-        v: string,
-        r: string,
-        s: string,
         amount: number,
         tokenId?: number,
-        wait = true
+        wait = true,
+        v?: string,
+        r?: string,
+        s?: string,
+        address?: string
     ): Promise<Transaction> {
         const contract = await this.getEVMContract();
 
@@ -289,6 +291,36 @@ export class EVMContract extends BaseContract implements IContract {
             new Date() > contractInfo.publicSaleAt
         ) {
             this.logger.log('buyPresale', `Presale complete`, true);
+        }
+
+        if (v == null || r == null || s == null) {
+            this.logger.log(
+                'buyPresale',
+                'No v r s values provided therefore assuming managed whitelists are being used and ' +
+                    'retrieving presale auth from HM API'
+            );
+            if (address == null) {
+                this.logger.log(
+                    'buyPresale',
+                    `Address must be provided if v r s values are not provided`,
+                    true
+                );
+            }
+            const presaleSig = await HMAPI.getEVMPresaleAuthorisation(
+                this.config,
+                tokenId,
+                address
+            );
+            if (presaleSig['error'] != null || presaleSig.v == null) {
+                this.logger.log(
+                    'buyPresale',
+                    `An error occurred whilst requesting presale auth: ${presaleSig['error']}`,
+                    true
+                );
+            }
+            v = presaleSig.v;
+            r = presaleSig.r;
+            s = presaleSig.s;
         }
 
         const isPolygon = this.config.networkType === NetworkType.Polygon;

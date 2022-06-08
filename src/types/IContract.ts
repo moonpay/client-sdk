@@ -28,12 +28,13 @@ export interface IContract {
         wait?: boolean
     ) => Promise<Transaction>;
     buyPresale: (
-        v: string,
-        r: string,
-        s: string,
         amount: number,
         tokenId?: number,
-        wait?: boolean
+        wait?: boolean,
+        v?: string,
+        r?: string,
+        s?: string,
+        address?: string
     ) => Promise<Transaction>;
 
     transfer: (
