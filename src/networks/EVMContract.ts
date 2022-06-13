@@ -262,11 +262,10 @@ export class EVMContract extends BaseContract implements IContract {
         wait = true,
         v?: string,
         r?: string,
-        s?: string,
-        address?: string
+        s?: string
     ): Promise<Transaction> {
         const contract = await this.getEVMContract();
-
+        const address = await this.signer.getAddress();
         this.logger.log(
             'buyPresale',
             `Buying ${tokenId ?? ''} x${amount}. Validating...`

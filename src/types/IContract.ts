@@ -33,8 +33,7 @@ export interface IContract {
         wait?: boolean,
         v?: string,
         r?: string,
-        s?: string,
-        address?: string
+        s?: string
     ) => Promise<Transaction>;
 
     transfer: (
