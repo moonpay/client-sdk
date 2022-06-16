@@ -1,6 +1,7 @@
 import { ethers } from 'ethers';
 import { EVMHelpers } from '../helpers/EVMHelpers';
 import { GenericHelpers } from '../helpers/GenericHelpers';
+import { HMAPI } from '../helpers/HMAPI';
 import { Config } from '../types/Config';
 import { ContractInformation } from '../types/ContractInformation';
 import {
@@ -12,7 +13,6 @@ import { ERC1155, ERC721 } from '../types/EVMABIs';
 import { IContract } from '../types/IContract';
 import { Transaction } from '../types/Transaction';
 import { BaseContract } from './BaseContract';
-import { HMAPI } from '../helpers/HMAPI';
 
 declare const window;
 
@@ -527,7 +527,7 @@ export class EVMContract extends BaseContract implements IContract {
         if (tokenInfo.maxPerAddress) {
             const balance = await this.getTokenBalance(tokenId);
 
-            if (balance + amount > tokenInfo[tokenId].maxPerAddress) {
+            if (balance + amount > tokenInfo.maxPerAddress) {
                 this.logger.log('validateBuy', `Exceeds max per address`, true);
             }
         }

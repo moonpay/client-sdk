@@ -42,5 +42,5 @@ export interface IContract {
         amount?: number
     ) => Promise<Transaction>;
 
-    getMoonPayWidgetUrl: (tokenId?: number) => string;
+    getMoonPayWidgetUrl: (tokenId?: number) => Promise<string>;
 }
