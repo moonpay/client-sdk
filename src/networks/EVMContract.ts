@@ -519,7 +519,7 @@ export class EVMContract extends BaseContract implements IContract {
         if (tokenInfo.remaining < amount) {
             this.logger.log(
                 'validateBuy',
-                `Insufficient tokens: Requested: ${amount}, Remaining: ${tokenInfo[tokenId].remaining}`,
+                `Insufficient tokens: Requested: ${amount}, Remaining: ${tokenInfo.remaining}`,
                 true
             );
         }
