@@ -292,24 +292,15 @@ export class EVMContract extends BaseContract implements IContract {
             this.logger.log('buyPresale', `Presale complete`, true);
         }
 
-        if (v == null || r == null || s == null) {
-            this.logger.log(
-                'buyPresale',
-                'No v r s values provided therefore assuming managed whitelists are being used and ' +
-                    'retrieving presale auth from HM API'
-            );
-            if (address == null) {
-                this.logger.log(
-                    'buyPresale',
-                    `Address must be provided if v r s values are not provided`,
-                    true
-                );
-            }
+        if (!v || !r || !s) {
+            this.logger.log('buyPresale', 'Fetching signature from HM API...');
+
             const presaleSig = await HMAPI.getEVMPresaleAuthorisation(
                 this.config,
                 tokenId,
                 address
             );
+
             if (presaleSig['error'] != null || presaleSig.v == null) {
                 this.logger.log(
                     'buyPresale',
@@ -317,6 +308,7 @@ export class EVMContract extends BaseContract implements IContract {
                     true
                 );
             }
+
             v = presaleSig.v;
             r = presaleSig.r;
             s = presaleSig.s;

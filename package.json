@@ -2,10 +2,13 @@
     "name": "@hypermint/client-sdk",
     "description": "Client SDK for interacting with contracts",
     "scripts": {
-        "clean": "rm -fr dist",
+        "clean": "rm -rf dist",
         "build": "npm run clean && rollup -c rollup.config.js && rollup -c rollup-solana.config.js",
         "build-evm": "rollup -c rollup.config.js",
-        "build-sol": "rollup -c rollup-solana.config.js"
+        "build-sol": "rollup -c rollup-solana.config.js",
+        "lint": "eslint --max-warnings=0 **/*.{ts,tsx}",
+        "lint:fix": "eslint --fix --max-warnings=0 **/*.{ts,tsx}",
+        "format": "npm run lint && prettier --write **/*.ts"
     },
     "dependencies": {
         "@solana/web3.js": "^1.42.0",
@@ -22,6 +25,7 @@
         "@typescript-eslint/parser": "5.10.1",
         "eslint": "8.7.0",
         "eslint-config-prettier": "8.3.0",
+        "eslint-plugin-jest": "^26.5.3",
         "eslint-plugin-prettier": "4.0.0",
         "prettier": "2.5.1",
         "rollup": "2.71.1",

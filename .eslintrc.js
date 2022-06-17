@@ -3,7 +3,8 @@ module.exports = {
     extends: [
         'eslint:recommended',
         'plugin:@typescript-eslint/recommended',
-        'plugin:prettier/recommended'
+        'plugin:prettier/recommended',
+        'plugin:jest/recommended'
     ],
     parser: '@typescript-eslint/parser',
     parserOptions: {
@@ -15,6 +16,18 @@ module.exports = {
         '@typescript-eslint/no-explicit-any': 0,
         'default-case': 'error',
         'react-hooks/exhaustive-deps': 0,
-        'prettier/prettier': 'warn'
-    }
+        'prettier/prettier': 'warn',
+        camelcase: 'error',
+        'jest/expect-expect': 0,
+        'jest/no-standalone-expect': 0,
+        'jest/valid-title': [
+            'warn',
+            {
+                mustMatch: {
+                    it: '^Should'
+                }
+            }
+        ]
+    },
+    ignorePatterns: ['dist']
 };
