@@ -4,7 +4,7 @@ import { Config } from '../types/Config';
 import { ContractInformation } from '../types/ContractInformation';
 import { TokenInformation } from '../types/TokenInformation';
 import { UpdateBuyTokenRequest } from '../types/UpdateBuyTokenRequest';
-import { EVMSignature } from '../types/EVMSignature';
+import { AuthPresaleResponse } from '../types/AuthPresaleResponse';
 
 export class HMAPI {
     public static async getContract(
@@ -106,13 +106,14 @@ export class HMAPI {
     public static async getEVMPresaleAuthorisation(
         config: Config,
         tokenId: number,
-        address: string
-    ): Promise<EVMSignature> {
+        address: string,
+        amount: number
+    ): Promise<AuthPresaleResponse> {
         const url = `${HMAPI.getHMBaseUrl(
             config
         )}/client/authorise-evm-presale/${
             config.contractId
-        }/${tokenId}/${address}`;
+        }/${tokenId}/${address}/${amount}`;
 
         return (await fetch(url)).json();
     }
