@@ -344,20 +344,19 @@ export class EVMContract extends BaseContract implements IContract {
         }
 
         let buyTransaction;
-
+        let gweiPrice = ethers.utils.parseEther(ethPrice.toString());
         if (this.config.contractType === NFTContractType.ERC721) {
             if (isPolygon) {
                 buyTransaction = await contract.buyPresale(
                     amount,
-                    ethPrice,
+                    gweiPrice,
                     expires,
                     signature
                 );
             } else {
                 buyTransaction = await contract.buyPresale(
                     amount,
-                    amount,
-                    ethPrice,
+                    gweiPrice,
                     expires,
                     signature,
                     {
@@ -370,7 +369,7 @@ export class EVMContract extends BaseContract implements IContract {
                 buyTransaction = await contract.buyPresale(
                     tokenId,
                     amount,
-                    ethPrice,
+                    gweiPrice,
                     expires,
                     signature
                 );
@@ -378,7 +377,7 @@ export class EVMContract extends BaseContract implements IContract {
                 buyTransaction = await contract.buyPresale(
                     tokenId,
                     amount,
-                    ethPrice,
+                    gweiPrice,
                     expires,
                     signature,
                     {
@@ -408,19 +407,13 @@ export class EVMContract extends BaseContract implements IContract {
         let transaction;
 
         if (this.config.contractType === NFTContractType.ERC721) {
-            transaction = await contract.safeTransferFrom(
-                await this.signer.getAddress(),
-                to,
-                tokenId
-            );
+            transaction = await contract[
+                'safeTransferFrom(address,address,uint256)'
+            ](await this.signer.getAddress(), to, tokenId);
         } else {
-            transaction = await contract.safeTransferFrom(
-                await this.signer.getAddress(),
-                to,
-                tokenId,
-                amount,
-                '0x'
-            );
+            transaction = await contract[
+                'safeTransferFrom(address,address,uint256,bytes)'
+            ](await this.signer.getAddress(), to, tokenId, '0x');
         }
 
         this.logger.log(
