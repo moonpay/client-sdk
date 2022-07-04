@@ -302,7 +302,7 @@ export const ERC721 = [
                 type: 'bytes'
             }
         ],
-        name: 'buyPresale',
+        name: 'buyAuthorised',
         outputs: [],
         stateMutability: 'payable',
         type: 'function'
@@ -1274,7 +1274,7 @@ export const ERC1155 = [
                 type: 'bytes'
             }
         ],
-        name: 'buyPresale',
+        name: 'buyAuthorised',
         outputs: [],
         stateMutability: 'payable',
         type: 'function'

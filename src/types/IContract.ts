@@ -27,7 +27,7 @@ export interface IContract {
         tokenId?: number,
         wait?: boolean
     ) => Promise<Transaction>;
-    buyPresale: (
+    buyAuthorised: (
         amount: number,
         tokenId: number,
         wait?: boolean,
