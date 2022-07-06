@@ -1,4 +1,4 @@
-export interface AuthPresaleResponse {
+export interface AuthoriseEVMBuyResponse {
     price: number;
     maxPerAddress?: number;
     expires: number;
