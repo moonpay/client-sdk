@@ -99,7 +99,7 @@ export class SolanaContract extends BaseContract implements IContract {
         }
     }
 
-    public buyPresale(): Promise<Transaction> {
+    public buyAuthorised(): Promise<Transaction> {
         throw new Error('Not supported');
     }
 

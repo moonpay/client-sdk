@@ -1,10 +1,10 @@
+import { AuthoriseEVMBuyResponse } from '../types/AuthoriseEVMBuyResponse';
 import { BuyTokensRequest } from '../types/BuyTokensRequest';
 import { BuyTokensResponse } from '../types/BuyTokensResponse';
 import { Config } from '../types/Config';
 import { ContractInformation } from '../types/ContractInformation';
 import { TokenInformation } from '../types/TokenInformation';
 import { UpdateBuyTokenRequest } from '../types/UpdateBuyTokenRequest';
-import { EVMSignature } from '../types/EVMSignature';
 
 export class HMAPI {
     public static async getContract(
@@ -103,16 +103,15 @@ export class HMAPI {
         ).json();
     }
 
-    public static async getEVMPresaleAuthorisation(
+    public static async authoriseEVMBuy(
         config: Config,
         tokenId: number,
-        address: string
-    ): Promise<EVMSignature> {
-        const url = `${HMAPI.getHMBaseUrl(
-            config
-        )}/client/authorise-evm-presale/${
+        address: string,
+        amount: number
+    ): Promise<AuthoriseEVMBuyResponse> {
+        const url = `${HMAPI.getHMBaseUrl(config)}/client/authorise-evm-buy/${
             config.contractId
-        }/${tokenId}/${address}`;
+        }/${tokenId}/${address}/${amount}`;
 
         return (await fetch(url)).json();
     }

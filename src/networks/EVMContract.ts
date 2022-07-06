@@ -191,7 +191,10 @@ export class EVMContract extends BaseContract implements IContract {
             `Buying ${tokenId ?? ''} x ${amount}. Validating...`
         );
 
-        const { price, contractInfo } = await this.validateBuy(amount, tokenId);
+        const { totalPrice, contractInfo } = await this.validateBuy(
+            amount,
+            tokenId
+        );
 
         if (
             contractInfo.publicSaleAt &&
@@ -218,7 +221,7 @@ export class EVMContract extends BaseContract implements IContract {
             );
             const approveTransaction = await wethContract.approve(
                 this.config.contractAddress,
-                ethers.utils.parseEther(price.toString())
+                ethers.utils.parseEther(totalPrice.toString())
             );
 
             this.logger.log('buy', 'Waiting for approve transaction...');
@@ -235,7 +238,7 @@ export class EVMContract extends BaseContract implements IContract {
                 buyTransaction = await contract.buy(amount);
             } else {
                 buyTransaction = await contract.buy(amount, {
-                    value: ethers.utils.parseEther(price.toString())
+                    value: ethers.utils.parseEther(totalPrice.toString())
                 });
             }
         } else {
@@ -243,7 +246,7 @@ export class EVMContract extends BaseContract implements IContract {
                 buyTransaction = await contract.buy(tokenId, amount);
             } else {
                 buyTransaction = await contract.buy(tokenId, amount, {
-                    value: ethers.utils.parseEther(price.toString())
+                    value: ethers.utils.parseEther(totalPrice.toString())
                 });
             }
         }
@@ -256,68 +259,70 @@ export class EVMContract extends BaseContract implements IContract {
         return buyTransaction;
     }
 
-    public async buyPresale(
+    public async buyAuthorised(
         amount: number,
-        tokenId?: number,
+        tokenId: number = 0,
         wait = true,
-        v?: string,
-        r?: string,
-        s?: string
+        ethPrice?: number,
+        expires?: number,
+        signature?: string
     ): Promise<Transaction> {
         const contract = await this.getEVMContract();
         const address = await this.signer.getAddress();
         this.logger.log(
-            'buyPresale',
+            'buyAuthorised',
             `Buying ${tokenId ?? ''} x${amount}. Validating...`
         );
 
-        const { price, contractInfo } = await this.validateBuy(amount, tokenId);
-
-        if (!contractInfo.presaleAt) {
+        let maxPerAddress;
+        if (!ethPrice || !expires || !signature) {
             this.logger.log(
-                'buyPresale',
-                `Buy presale is not enabled on this contract`,
-                true
+                'buyAuthorised',
+                'Fetching signature from HM API...'
             );
+
+            const authoriseResponse = await HMAPI.authoriseEVMBuy(
+                this.config,
+                tokenId,
+                address,
+                amount
+            );
+
+            if (
+                authoriseResponse['error'] != null ||
+                authoriseResponse.signature == null
+            ) {
+                this.logger.log(
+                    'buyAuthorised',
+                    `An error occurred whilst requesting buy authorisation: ${authoriseResponse['error']}`,
+                    true
+                );
+            }
+
+            maxPerAddress = authoriseResponse.maxPerAddress;
+            ethPrice = authoriseResponse.price;
+            expires = authoriseResponse.expires;
+            signature = authoriseResponse.signature;
         }
 
-        if (new Date() < contractInfo.presaleAt) {
-            this.logger.log('buyPresale', `Presale closed`, true);
-        }
+        const { totalPrice, contractInfo } = await this.validateBuy(
+            amount,
+            tokenId,
+            maxPerAddress,
+            ethPrice
+        );
 
         if (
             contractInfo.publicSaleAt &&
             new Date() > contractInfo.publicSaleAt
         ) {
-            this.logger.log('buyPresale', `Presale complete`, true);
-        }
-
-        if (!v || !r || !s) {
-            this.logger.log('buyPresale', 'Fetching signature from HM API...');
-
-            const presaleSig = await HMAPI.getEVMPresaleAuthorisation(
-                this.config,
-                tokenId,
-                address
-            );
-
-            if (presaleSig['error'] != null || presaleSig.v == null) {
-                this.logger.log(
-                    'buyPresale',
-                    `An error occurred whilst requesting presale auth: ${presaleSig['error']}`,
-                    true
-                );
-            }
-
-            v = presaleSig.v;
-            r = presaleSig.r;
-            s = presaleSig.s;
+            this.logger.log('buyAuthorised', `Buy complete`, true);
         }
 
         const isPolygon = this.config.networkType === NetworkType.Polygon;
 
         if (isPolygon) {
-            this.logger.log('buyPresale', 'Creating approve transaction...');
+            this.logger.log('buyAuthorised', 'Creating approve transaction...');
 
             const wethContract = EVMHelpers.getWETHContract(
                 this.config,
@@ -325,49 +330,64 @@ export class EVMContract extends BaseContract implements IContract {
             );
             const approveTransaction = await wethContract.approve(
                 this.config.contractAddress,
-                ethers.utils.parseEther(price.toString())
+                ethers.utils.parseEther(totalPrice.toString())
             );
 
-            this.logger.log('buyPresale', 'Waiting for approve transaction...');
+            this.logger.log(
+                'buyAuthorised',
+                'Waiting for approve transaction...'
+            );
 
             await this.waitForTransaction(approveTransaction);
         }
 
         let buyTransaction;
+        let gweiPrice = ethers.utils.parseEther(ethPrice.toString());
 
         if (this.config.contractType === NFTContractType.ERC721) {
             if (isPolygon) {
-                buyTransaction = await contract.buyPresale(amount, v, r, s);
+                buyTransaction = await contract.buyAuthorised(
+                    amount,
+                    gweiPrice,
+                    expires,
+                    signature
+                );
             } else {
-                buyTransaction = await contract.buyPresale(amount, v, r, s, {
-                    value: ethers.utils.parseEther(price.toString())
-                });
+                buyTransaction = await contract.buyAuthorised(
+                    amount,
+                    gweiPrice,
+                    expires,
+                    signature,
+                    {
+                        value: ethers.utils.parseEther(totalPrice.toString())
+                    }
+                );
             }
         } else {
             if (isPolygon) {
-                buyTransaction = await contract.buyPresale(
+                buyTransaction = await contract.buyAuthorised(
                     tokenId,
                     amount,
-                    v,
-                    r,
-                    s
+                    gweiPrice,
+                    expires,
+                    signature
                 );
             } else {
-                buyTransaction = await contract.buyPresale(
+                buyTransaction = await contract.buyAuthorised(
                     tokenId,
                     amount,
-                    v,
-                    r,
-                    s,
+                    gweiPrice,
+                    expires,
+                    signature,
                     {
-                        value: ethers.utils.parseEther(price.toString())
+                        value: ethers.utils.parseEther(totalPrice.toString())
                     }
                 );
             }
         }
 
         if (wait) {
-            this.logger.log('buyPresale', 'Waiting on buy transaction...');
+            this.logger.log('buyAuthorised', 'Waiting on buy transaction...');
             await this.waitForTransaction(buyTransaction);
         }
 
@@ -386,19 +406,13 @@ export class EVMContract extends BaseContract implements IContract {
         let transaction;
 
         if (this.config.contractType === NFTContractType.ERC721) {
-            transaction = await contract.safeTransferFrom(
-                await this.signer.getAddress(),
-                to,
-                tokenId
-            );
+            transaction = await contract[
+                'safeTransferFrom(address,address,uint256)'
+            ](await this.signer.getAddress(), to, tokenId);
         } else {
-            transaction = await contract.safeTransferFrom(
-                await this.signer.getAddress(),
-                to,
-                tokenId,
-                amount,
-                '0x'
-            );
+            transaction = await contract[
+                'safeTransferFrom(address,address,uint256,bytes)'
+            ](await this.signer.getAddress(), to, tokenId, '0x');
         }
 
         this.logger.log(
@@ -494,8 +508,10 @@ export class EVMContract extends BaseContract implements IContract {
 
     private async validateBuy(
         amount: number,
-        tokenId = 0
-    ): Promise<{ price: number; contractInfo: ContractInformation }> {
+        tokenId = 0,
+        overrideMaxPerAddress?: number,
+        overrideTokenPrice?: number
+    ): Promise<{ totalPrice: number; contractInfo: ContractInformation }> {
         const contractInfo = await this.getContractInformation();
 
         if (!contractInfo.allowBuyOnNetwork) {
@@ -516,16 +532,24 @@ export class EVMContract extends BaseContract implements IContract {
             );
         }
 
-        if (tokenInfo.maxPerAddress) {
+        let maxPerAddress = tokenInfo.maxPerAddress;
+        if (overrideMaxPerAddress) {
+            maxPerAddress = overrideMaxPerAddress;
+        }
+
+        if (maxPerAddress) {
             const balance = await this.getTokenBalance(tokenId);
 
-            if (balance + amount > tokenInfo.maxPerAddress) {
+            if (balance + amount > maxPerAddress) {
                 this.logger.log('validateBuy', `Exceeds max per address`, true);
             }
         }
 
         this.logger.log('validateBuy', `Checking price...`);
-        const price = tokenInfo.price * amount;
+        let price = tokenInfo.price * amount;
+        if (overrideTokenPrice) {
+            price = overrideTokenPrice * amount;
+        }
 
         this.logger.log('validateBuy', `Checking wallet balance...`);
         const walletBalance = await this.getWalletBalance();
@@ -538,6 +562,6 @@ export class EVMContract extends BaseContract implements IContract {
             );
         }
 
-        return { price, contractInfo };
+        return { totalPrice: price, contractInfo };
     }
 }
