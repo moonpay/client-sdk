@@ -35,11 +35,13 @@ export class SolanaContract extends BaseContract implements IContract {
             }
         }
 
-        for (const signature of transaction.signatures) {
-            signature.publicKey = new PublicKey(signature.publicKey);
+        if(transaction.signatures){
+            for (const signature of transaction.signatures) {
+                signature.publicKey = new PublicKey(signature.publicKey);
 
-            if (signature.signature) {
-                signature.signature = Buffer.from(signature.signature.data);
+                if (signature.signature) {
+                    signature.signature = Buffer.from(signature.signature.data);
+                }
             }
         }
 
