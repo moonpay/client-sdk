@@ -32,6 +32,7 @@ export interface IContract {
         tokenId: number,
         wait?: boolean,
         ethPrice?: number,
+        maxPerAddress?: number,
         expires?: number,
         signature?: string
     ) => Promise<Transaction>;

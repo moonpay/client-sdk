@@ -126,12 +126,15 @@ export class EVMContract extends BaseContract implements IContract {
         let balance;
 
         if (this.config.contractType === NFTContractType.ERC721) {
-            balance = await contract.balanceOf(await this.signer.getAddress());
+            balance = await contract.totalMinted(
+                await this.signer.getAddress()
+            );
         } else {
             if (tokenId === undefined) {
                 this.logger.log('getTokenBalance', 'Token id required', true);
             }
 
+            // TODO: Migrate to totalMinted
             balance = await contract.balanceOf(
                 await this.signer.getAddress(),
                 tokenId
@@ -261,9 +264,10 @@ export class EVMContract extends BaseContract implements IContract {
 
     public async buyAuthorised(
         amount: number,
-        tokenId: number = 0,
+        tokenId = 0,
         wait = true,
         ethPrice?: number,
+        maxPerAddress?: number,
         expires?: number,
         signature?: string
     ): Promise<Transaction> {
@@ -274,8 +278,12 @@ export class EVMContract extends BaseContract implements IContract {
             `Buying ${tokenId ?? ''} x${amount}. Validating...`
         );
 
-        let maxPerAddress;
-        if (!ethPrice || !expires || !signature) {
+        if (
+            ethPrice === undefined ||
+            !expires ||
+            !signature ||
+            maxPerAddress === undefined
+        ) {
             this.logger.log(
                 'buyAuthorised',
                 'Fetching signature from HM API...'
@@ -342,13 +350,14 @@ export class EVMContract extends BaseContract implements IContract {
         }
 
         let buyTransaction;
-        let gweiPrice = ethers.utils.parseEther(ethPrice.toString());
+        const gweiPrice = ethers.utils.parseEther(ethPrice.toString());
 
         if (this.config.contractType === NFTContractType.ERC721) {
             if (isPolygon) {
                 buyTransaction = await contract.buyAuthorised(
                     amount,
                     gweiPrice,
+                    maxPerAddress,
                     expires,
                     signature
                 );
@@ -356,6 +365,7 @@ export class EVMContract extends BaseContract implements IContract {
                 buyTransaction = await contract.buyAuthorised(
                     amount,
                     gweiPrice,
+                    maxPerAddress,
                     expires,
                     signature,
                     {
@@ -369,6 +379,7 @@ export class EVMContract extends BaseContract implements IContract {
                     tokenId,
                     amount,
                     gweiPrice,
+                    maxPerAddress,
                     expires,
                     signature
                 );
@@ -377,6 +388,7 @@ export class EVMContract extends BaseContract implements IContract {
                     tokenId,
                     amount,
                     gweiPrice,
+                    maxPerAddress,
                     expires,
                     signature,
                     {
@@ -510,7 +522,7 @@ export class EVMContract extends BaseContract implements IContract {
         amount: number,
         tokenId = 0,
         overrideMaxPerAddress?: number,
-        overrideTokenPrice?: number
+        overrideTotalPrice?: number
     ): Promise<{ totalPrice: number; contractInfo: ContractInformation }> {
         const contractInfo = await this.getContractInformation();
 
@@ -532,10 +544,10 @@ export class EVMContract extends BaseContract implements IContract {
             );
         }
 
-        let maxPerAddress = tokenInfo.maxPerAddress;
-        if (overrideMaxPerAddress) {
-            maxPerAddress = overrideMaxPerAddress;
-        }
+        const maxPerAddress =
+            overrideMaxPerAddress !== undefined
+                ? overrideMaxPerAddress
+                : tokenInfo.maxPerAddress;
 
         if (maxPerAddress) {
             const balance = await this.getTokenBalance(tokenId);
@@ -546,10 +558,10 @@ export class EVMContract extends BaseContract implements IContract {
         }
 
         this.logger.log('validateBuy', `Checking price...`);
-        let price = tokenInfo.price * amount;
-        if (overrideTokenPrice) {
-            price = overrideTokenPrice * amount;
-        }
+        const price =
+            overrideTotalPrice === undefined
+                ? tokenInfo.price * amount
+                : overrideTotalPrice;
 
         this.logger.log('validateBuy', `Checking wallet balance...`);
         const walletBalance = await this.getWalletBalance();

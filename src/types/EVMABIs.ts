@@ -110,6 +110,25 @@ export const ERC721 = [
         type: 'constructor'
     },
     {
+        inputs: [
+            {
+                internalType: 'address',
+                name: '',
+                type: 'address'
+            }
+        ],
+        name: 'totalMinted',
+        outputs: [
+            {
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256'
+            }
+        ],
+        stateMutability: 'view',
+        type: 'function'
+    },
+    {
         anonymous: false,
         inputs: [
             {
@@ -289,6 +308,11 @@ export const ERC721 = [
             {
                 internalType: 'uint256',
                 name: '_price',
+                type: 'uint256'
+            },
+            {
+                internalType: 'uint256',
+                name: '_maxPerAddress',
                 type: 'uint256'
             },
             {
