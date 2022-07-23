@@ -1,5 +1,5 @@
 export interface AuthoriseEVMBuyResponse {
-    price: number;
+    totalPrice: number;
     maxPerAddress?: number;
     expires: number;
     signature: string;

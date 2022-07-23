@@ -126,15 +126,12 @@ export class EVMContract extends BaseContract implements IContract {
         let balance;
 
         if (this.config.contractType === NFTContractType.ERC721) {
-            balance = await contract.totalMinted(
-                await this.signer.getAddress()
-            );
+            balance = await contract.balanceOf(await this.signer.getAddress());
         } else {
             if (tokenId === undefined) {
                 this.logger.log('getTokenBalance', 'Token id required', true);
             }
 
-            // TODO: Migrate to totalMinted
             balance = await contract.balanceOf(
                 await this.signer.getAddress(),
                 tokenId
@@ -144,6 +141,40 @@ export class EVMContract extends BaseContract implements IContract {
         const result = balance.toNumber();
         this.logger.log(
             'getTokenBalance',
+            `Token balance of ${tokenId}: ${result}`
+        );
+        return result;
+    }
+
+    public async getTotalMinted(tokenId?: number): Promise<number> {
+        this.logger.log(
+            'getTotalMinted',
+            `Getting token ${tokenId} total minted...`
+        );
+
+        const contract = await this.getEVMContract();
+
+        let balance;
+
+        if (this.config.contractType === NFTContractType.ERC721) {
+            balance = await contract.totalMinted(
+                await this.signer.getAddress()
+            );
+        } else {
+            if (tokenId === undefined) {
+                this.logger.log('getTotalMinted', 'Token id required', true);
+            }
+
+            // TODO: Migrate to total minted
+            balance = await contract.balanceOf(
+                await this.signer.getAddress(),
+                tokenId
+            );
+        }
+
+        const result = balance.toNumber();
+        this.logger.log(
+            'getTotalMinted',
             `Token balance of ${tokenId}: ${result}`
         );
         return result;
@@ -275,7 +306,7 @@ export class EVMContract extends BaseContract implements IContract {
         const address = await this.signer.getAddress();
         this.logger.log(
             'buyAuthorised',
-            `Buying ${tokenId ?? ''} x${amount}. Validating...`
+            `Buying ${tokenId ?? ''} x ${amount}. Validating...`
         );
 
         if (
@@ -296,6 +327,13 @@ export class EVMContract extends BaseContract implements IContract {
                 amount
             );
 
+            this.logger.log(
+                'buyAuthorised',
+                'API response',
+                false,
+                authoriseResponse
+            );
+
             if (
                 authoriseResponse['error'] != null ||
                 authoriseResponse.signature == null
@@ -308,24 +346,19 @@ export class EVMContract extends BaseContract implements IContract {
             }
 
             maxPerAddress = authoriseResponse.maxPerAddress;
-            ethPrice = authoriseResponse.price;
+            ethPrice = authoriseResponse.totalPrice;
             expires = authoriseResponse.expires;
             signature = authoriseResponse.signature;
         }
 
-        const { totalPrice, contractInfo } = await this.validateBuy(
+        const { totalPrice } = await this.validateBuy(
             amount,
             tokenId,
             maxPerAddress,
             ethPrice
         );
 
-        if (
-            contractInfo.publicSaleAt &&
-            new Date() > contractInfo.publicSaleAt
-        ) {
-            this.logger.log('buyAuthorised', `Buy complete`, true);
-        }
+        this.logger.log('buyAuthorised', `Using price ${totalPrice}`);
 
         const isPolygon = this.config.networkType === NetworkType.Polygon;
 
@@ -350,7 +383,7 @@ export class EVMContract extends BaseContract implements IContract {
         }
 
         let buyTransaction;
-        const gweiPrice = ethers.utils.parseEther(ethPrice.toString());
+        const gweiPrice = ethers.utils.parseEther(totalPrice.toString());
 
         if (this.config.contractType === NFTContractType.ERC721) {
             if (isPolygon) {
@@ -550,7 +583,7 @@ export class EVMContract extends BaseContract implements IContract {
                 : tokenInfo.maxPerAddress;
 
         if (maxPerAddress) {
-            const balance = await this.getTokenBalance(tokenId);
+            const balance = await this.getTotalMinted(tokenId);
 
             if (balance + amount > maxPerAddress) {
                 this.logger.log('validateBuy', `Exceeds max per address`, true);
