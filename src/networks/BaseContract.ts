@@ -20,11 +20,7 @@ export class BaseContract {
     }
 
     public async getMoonPayWidgetUrl(tokenId: number): Promise<string> {
-        const response = await fetch(
-            `https://api.hypermint.com/moonpay/widget/${this._config.contractId}/${tokenId}`
-        );
-
-        const url = await response.text();
+        const url = await  HMAPI.getMoonPayWidgetUrl(this._config, tokenId);
 
         this.logger.log('getMoonPayWidgetUrl', `MoonPay Widget Url: ${url}`);
 
