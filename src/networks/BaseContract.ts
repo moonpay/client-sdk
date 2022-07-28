@@ -71,6 +71,37 @@ export class BaseContract {
         }
     }
 
+    public async getTokenAllowance(contractId: string, walletAddress: string) {
+        try {
+            this.logger.log(
+                'getTokenAllowance',
+                `Getting token allowance for contract ${contractId} for address ${walletAddress} from HM servers...`
+            );
+
+            const allowance = await HMAPI.getTokenAllowance(
+                this._config,
+                contractId,
+                walletAddress
+            );
+
+            this.logger.log(
+                'getTokenAllowance',
+                'Allowance calculated',
+                false,
+                allowance
+            );
+
+            return allowance;
+        } catch (e) {
+            this.logger.log(
+                'getToken',
+                `Failed to get token allowance ${contractId} for ${walletAddress}: ${e.message}`,
+                true,
+                e
+            );
+        }
+    }
+
     public async getContractInformation(): Promise<ContractInformation> {
         if (this.contractInformation) {
             return this.contractInformation;

@@ -46,6 +46,18 @@ export class HMAPI {
         return (await fetch(url)).json();
     }
 
+    public static async getTokenAllowance(
+        config: Config,
+        contractId: string,
+        walletAddress: string
+    ) {
+        const url = `${HMAPI.getHMBaseUrl(
+            config
+        )}/client//${contractId}/allocation/${walletAddress}`;
+
+        return (await fetch(url)).json();
+    }
+
     public static async getSolanaApproveInstruction(
         config: Config,
         destination: string,

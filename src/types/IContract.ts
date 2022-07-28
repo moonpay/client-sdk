@@ -1,6 +1,7 @@
 import { ContractInformation } from './ContractInformation';
 import { TransactionStatus } from './Enums';
 import { Metadata } from './Metadata';
+import { TokenAllowance } from './TokenAllowance';
 import { TokenInformation } from './TokenInformation';
 import { Transaction } from './Transaction';
 
@@ -11,6 +12,10 @@ export interface IContract {
     getTokenBalance: () => Promise<number>;
     getTokens: () => Promise<TokenInformation[]>;
     getToken: (tokenId: number) => Promise<TokenInformation>;
+    getTokenAllowance: (
+        contractId: string,
+        walletAddress: string
+    ) => Promise<TokenAllowance>;
     getTokenMetadataUrl: (tokenId: number) => Promise<string>;
     getTokenMetadata: (tokenId: number) => Promise<Metadata>;
     getTransactionStatus: (
