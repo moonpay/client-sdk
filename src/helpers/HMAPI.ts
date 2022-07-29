@@ -46,14 +46,13 @@ export class HMAPI {
         return (await fetch(url)).json();
     }
 
-    public static async getTokenAllowance(
+    public static async getTokenAllowanceForAddress(
         config: Config,
-        contractId: string,
         walletAddress: string
     ) {
-        const url = `${HMAPI.getHMBaseUrl(
-            config
-        )}/client//${contractId}/allocation/${walletAddress}`;
+        const url = `${HMAPI.getHMBaseUrl(config)}/client//${
+            config.contractId
+        }/allocation/${walletAddress}`;
 
         return (await fetch(url)).json();
     }

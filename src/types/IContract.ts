@@ -12,10 +12,7 @@ export interface IContract {
     getTokenBalance: () => Promise<number>;
     getTokens: () => Promise<TokenInformation[]>;
     getToken: (tokenId: number) => Promise<TokenInformation>;
-    getTokenAllowance: (
-        contractId: string,
-        walletAddress: string
-    ) => Promise<TokenAllowance>;
+    getTokenAllowance: (walletAddress: string) => Promise<TokenAllowance>;
     getTokenMetadataUrl: (tokenId: number) => Promise<string>;
     getTokenMetadata: (tokenId: number) => Promise<Metadata>;
     getTransactionStatus: (
