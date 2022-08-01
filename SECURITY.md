@@ -2,4 +2,6 @@
 
 ## Reporting a Vulnerability
 
-All security bugs in Moonpay repositories should be reported to our hackerone program. A form to make this reports can be found at the bottom of https://www.moonpay.com/security
+Hypermint operates a vulnerability disclosure program, inviting third party white hat security researchers to proactively test our products. If you are a security researcher and you believe that you have found a potential security issue in one of our assets, please report it using the form available in our [security page](https://moonpay.com/security).
+
+
