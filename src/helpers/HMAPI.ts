@@ -6,13 +6,12 @@ import { ContractInformation } from '../types/ContractInformation';
 import { TokenInformation } from '../types/TokenInformation';
 import { UpdateBuyTokenRequest } from '../types/UpdateBuyTokenRequest';
 
+// TODO: convert to a stateful API client rather than statics
 export class HMAPI {
     public static async getContract(
         config: Config
     ): Promise<ContractInformation> {
-        const url = `${HMAPI.getHMBaseUrl(config)}/client/contract/${
-            config.contractId
-        }`;
+        const url = `${HMAPI.getHMBaseUrl(config)}/client/contract/${config.contractId}`;
 
         const result: ContractInformation = await (await fetch(url)).json();
 
@@ -28,9 +27,7 @@ export class HMAPI {
     }
 
     public static async getTokens(config: Config): Promise<TokenInformation[]> {
-        const url = `${HMAPI.getHMBaseUrl(config)}/client/contract/${
-            config.contractId
-        }/tokens`;
+        const url = `${HMAPI.getHMBaseUrl(config)}/client/contract/${config.contractId}/tokens`;
 
         return (await fetch(url)).json();
     }
@@ -39,9 +36,7 @@ export class HMAPI {
         config: Config,
         tokenId: number
     ): Promise<TokenInformation> {
-        const url = `${HMAPI.getHMBaseUrl(config)}/client/contract/${
-            config.contractId
-        }/tokens/${tokenId}`;
+        const url = `${HMAPI.getHMBaseUrl(config)}/client/contract/${config.contractId}/tokens/${tokenId}`;
 
         return (await fetch(url)).json();
     }
@@ -109,11 +104,21 @@ export class HMAPI {
         address: string,
         amount: number
     ): Promise<AuthoriseEVMBuyResponse> {
-        const url = `${HMAPI.getHMBaseUrl(config)}/client/authorise-evm-buy/${
-            config.contractId
-        }/${tokenId}/${address}/${amount}`;
+        const url = `${HMAPI.getHMBaseUrl(config)}/client/authorise-evm-buy/${config.contractId}/${tokenId}/${address}/${amount}`;
 
         return (await fetch(url)).json();
+    }
+
+    public static async getMoonPayWidgetUrl(config: Config, tokenId: number): Promise<string> {
+        const url = `${HMAPI.getHMBaseUrl(config)}/moonpay/widget/${config.contractId}/${tokenId}`;
+
+        const result = await (await fetch(url)).json();
+
+        if (result?.error) {
+            throw new Error(result.error);
+        }
+
+        return result;
     }
 
     private static getHMBaseUrl(config: Config) {
