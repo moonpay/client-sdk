@@ -6,6 +6,7 @@ import { ContractInformation } from '../types/ContractInformation';
 import { TokenInformation } from '../types/TokenInformation';
 import { UpdateBuyTokenRequest } from '../types/UpdateBuyTokenRequest';
 
+// TODO: convert to a stateful API client rather than statics
 export class HMAPI {
     public static async getContract(
         config: Config
