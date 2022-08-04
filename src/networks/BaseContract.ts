@@ -71,30 +71,31 @@ export class BaseContract {
         }
     }
 
-    public async getTokenAllowance(walletAddress: string) {
+    public async getTokenAllocation(tokenId: string, walletAddress: string) {
         try {
             this.logger.log(
-                'getTokenAllowance',
-                `Getting token allowance ${walletAddress} from HM servers...`
+                'getTokenAllocation',
+                `Getting token (${tokenId}) allocation for ${walletAddress} from HM servers...`
             );
 
-            const allowance = await HMAPI.getTokenAllowanceForAddress(
+            const allocation = await HMAPI.getTokenAllocationForAddress(
                 this._config,
+                tokenId,
                 walletAddress
             );
 
             this.logger.log(
-                'getTokenAllowance',
-                'Allowance calculated',
+                'getTokenAllocation',
+                'Allocation calculated',
                 false,
-                allowance
+                allocation
             );
 
-            return allowance;
+            return allocation;
         } catch (e) {
             this.logger.log(
                 'getToken',
-                `Failed to get token allowance for ${walletAddress}: ${e.message}`,
+                `Failed to get token allocation for ${walletAddress}: ${e.message}`,
                 true,
                 e
             );
