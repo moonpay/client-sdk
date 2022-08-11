@@ -143,6 +143,6 @@ export class HMAPI {
     }
 
     private static getHMBaseUrl(config: Config) {
-        return config.hmURL ?? 'https://client.hypermint.com/v1';
+        return config.hmURL ?? 'https://api.hypermint.com/v1';
     }
 }
