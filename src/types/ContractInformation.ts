@@ -1,13 +1,15 @@
+import { NFTContractMetadataType } from './Enums';
+
 export interface ContractInformation {
     name: string;
     symbol: string;
     allowBuyOnNetwork: boolean;
-    presaleAt?: Date;
     publicSaleAt?: Date;
     saleClosesAt?: Date;
     erc721Price?: number;
-    erc721MaxPerAddress?: number;
+    erc721MaxPerTransaction?: number;
     metadata: {
+        type: NFTContractMetadataType;
         contractUrl?: string;
         tokenUrl?: string;
     };

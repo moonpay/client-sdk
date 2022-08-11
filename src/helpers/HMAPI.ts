@@ -11,7 +11,7 @@ export class HMAPI {
     public static async getContract(
         config: Config
     ): Promise<ContractInformation> {
-        const url = `${HMAPI.getHMBaseUrl(config)}/v1/nft-contract/${
+        const url = `${HMAPI.getHMBaseUrl(config)}/nft-contract/${
             config.contractId
         }`;
 
@@ -29,7 +29,7 @@ export class HMAPI {
     }
 
     public static async getTokens(config: Config): Promise<TokenInformation[]> {
-        const url = `${HMAPI.getHMBaseUrl(config)}/v1/nft-contract/${
+        const url = `${HMAPI.getHMBaseUrl(config)}/nft-contract/${
             config.contractId
         }/tokens`;
 
@@ -40,7 +40,7 @@ export class HMAPI {
         config: Config,
         tokenId: number
     ): Promise<TokenInformation> {
-        const url = `${HMAPI.getHMBaseUrl(config)}/v1/nft-contract/${
+        const url = `${HMAPI.getHMBaseUrl(config)}/nft-contract/${
             config.contractId
         }/token/${tokenId}`;
 
@@ -52,7 +52,7 @@ export class HMAPI {
         tokenId: string,
         walletAddress: string
     ) {
-        const url = `${HMAPI.getHMBaseUrl(config)}/v1/nft-contract/${
+        const url = `${HMAPI.getHMBaseUrl(config)}/nft-contract/${
             config.contractId
         }/token/${tokenId}/allocation/${walletAddress}`;
 
@@ -65,7 +65,7 @@ export class HMAPI {
         tokenId = 1,
         amount = 1
     ): Promise<BuyTokensResponse> {
-        const url = `${HMAPI.getHMBaseUrl(config)}/client/buy-solana`;
+        const url = `${HMAPI.getHMBaseUrl(config)}/solana/buy-solana`;
 
         const data: BuyTokensRequest = {
             destination,
@@ -97,7 +97,7 @@ export class HMAPI {
         mintId: string,
         transactionHash: string
     ): Promise<boolean> {
-        const url = `${HMAPI.getHMBaseUrl(config)}/client/buy-solana`;
+        const url = `${HMAPI.getHMBaseUrl(config)}/solana/buy-solana`;
 
         const data: UpdateBuyTokenRequest = {
             mintId,
@@ -122,7 +122,7 @@ export class HMAPI {
         address: string,
         amount: number
     ): Promise<AuthoriseEVMBuyResponse> {
-        const url = `${HMAPI.getHMBaseUrl(config)}/v1/nft-contract/${
+        const url = `${HMAPI.getHMBaseUrl(config)}/nft-contract/${
             config.contractId
         }/token/${tokenId}/authorise-buy?address=${address}&amount=${amount}`;
 
@@ -137,16 +137,12 @@ export class HMAPI {
             config.contractId
         }/${tokenId}`;
 
-        const result = await (await fetch(url)).json();
+        const result = await fetch(url);
 
-        if (result?.error) {
-            throw new Error(result.error);
-        }
-
-        return result;
+        return result.text();
     }
 
     private static getHMBaseUrl(config: Config) {
-        return config.hmURL ?? 'https://api.hypermint.com';
+        return config.hmURL ?? 'https://client.hypermint.com/v1';
     }
 }

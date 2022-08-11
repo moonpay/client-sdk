@@ -1,10 +1,10 @@
 export interface TokenInformation {
-  id: number;
-  price: number;
-  supply: number;
-  remaining: number;
-  totalSupply: number;
-  maxPerAddress: number;
-  tokenAddress?: string;
-  tokenAccountAddress?: string;
+    id: number;
+    price: number;
+    supply: number;
+    remaining: number;
+    totalSupply: number;
+    maxPerTransaction: number;
+    tokenAddress?: string;
+    tokenAccountAddress?: string;
 }

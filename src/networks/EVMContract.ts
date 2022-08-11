@@ -439,11 +439,7 @@ export class EVMContract extends BaseContract implements IContract {
         return buyTransaction;
     }
 
-    public async transfer(
-        to: string,
-        tokenId: number,
-        amount?: number
-    ): Promise<Transaction> {
+    public async transfer(to: string, tokenId: number): Promise<Transaction> {
         const contract = await this.getEVMContract();
 
         this.logger.log('transfer', `Transferring ${tokenId} to ${to}...`);
@@ -554,7 +550,7 @@ export class EVMContract extends BaseContract implements IContract {
     private async validateBuy(
         amount: number,
         tokenId = 0,
-        overrideMaxPerAddress?: number,
+        maxPerAddress?: number,
         overrideTotalPrice?: number
     ): Promise<{ totalPrice: number; contractInfo: ContractInformation }> {
         const contractInfo = await this.getContractInformation();
@@ -577,10 +573,15 @@ export class EVMContract extends BaseContract implements IContract {
             );
         }
 
-        const maxPerAddress =
-            overrideMaxPerAddress !== undefined
-                ? overrideMaxPerAddress
-                : tokenInfo.maxPerAddress;
+        const maxPerTransaction = tokenInfo.maxPerTransaction;
+
+        if (amount > maxPerTransaction) {
+            this.logger.log(
+                'validateBuy',
+                `${amount} Exceeds max per transaction of ${maxPerTransaction}`,
+                true
+            );
+        }
 
         if (maxPerAddress) {
             const balance = await this.getTotalMinted(tokenId);

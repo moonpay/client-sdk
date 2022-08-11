@@ -4,6 +4,12 @@ export enum TransactionStatus {
     Failed = 'Failed'
 }
 
+export enum NFTContractMetadataType {
+    None = 'None',
+    Hosted = 'Hosted',
+    Url = 'Url'
+}
+
 export enum NetworkType {
     Ethereum = 'Ethereum',
     Polygon = 'Polygon',
