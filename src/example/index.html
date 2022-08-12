@@ -114,8 +114,8 @@
 <h1>Logs</h1>
 <div id="logs"></div>
 
-<!--<script src="./dist/client-sdk-solana.js" type="application/javascript"></script>-->
-<script src="./dist/client-sdk-evm.js" type="application/javascript"></script>
+<script src="./dist/client-sdk-solana.js" type="application/javascript"></script>
+<!-- <script src="./dist/client-sdk-evm.js" type="application/javascript"></script> -->
 
 <script>
   function logger(method, message, isFatal) {
@@ -129,15 +129,14 @@
 
 
   const contract = new Contract({
-    contractId: 'bf19ddc9-05ab-44cb-ba43-a777de280b3e',
-    contractAddress: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9',
+    contractId: 'bf19ddc9-05ab-44cb-ba43-a777de280b3b',
+    contractAddress: 'EJAx4AtcW9HUXArfwYDcLtLGxqifqQwTjCsQAbiivbF6',
     contractType: NFTContractType.ERC721,
-    networkEnvironment: NetworkEnvironment.Emulator,
-    networkType: NetworkType.Ethereum,
-    networkChain: NetworkChain.EVMLocal,
+    networkEnvironment: NetworkEnvironment.Testnet,
+    networkType: NetworkType.Solana,
     enableLogging: true,
     logger,
-    hmURL: "http://localhost:4005/v1"
+    hmURL: "http://localhost:4001/v1"
   });
 
 </script>

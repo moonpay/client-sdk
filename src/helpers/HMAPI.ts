@@ -65,7 +65,7 @@ export class HMAPI {
         tokenId = 1,
         amount = 1
     ): Promise<BuyTokensResponse> {
-        const url = `${HMAPI.getHMBaseUrl(config)}/solana/buy-solana`;
+        const url = `${HMAPI.getHMBaseUrl(config)}/solana/buy`;
 
         const data: BuyTokensRequest = {
             destination,
@@ -97,7 +97,7 @@ export class HMAPI {
         mintId: string,
         transactionHash: string
     ): Promise<boolean> {
-        const url = `${HMAPI.getHMBaseUrl(config)}/solana/buy-solana`;
+        const url = `${HMAPI.getHMBaseUrl(config)}/solana/buy`;
 
         const data: UpdateBuyTokenRequest = {
             mintId,
