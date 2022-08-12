@@ -1,5 +1,5 @@
 export interface TokenAllocation {
-    allowance: {
+    allocation: {
         remainingAllocation: number;
         pricePerToken: number;
     }[];

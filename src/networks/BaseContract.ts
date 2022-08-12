@@ -86,17 +86,10 @@ export class BaseContract {
                 `Getting token (${tokenId}) allocation for ${walletAddress} from HM servers...`
             );
 
-            const allocation = await HMAPI.getTokenAllocationForAddress(
+            const { allocation } = await HMAPI.getTokenAllocationForAddress(
                 this._config,
                 tokenId,
                 walletAddress
-            );
-
-            this.logger.log(
-                'getTokenAllocation',
-                'Allocation calculated',
-                false,
-                allocation
             );
 
             return allocation;
