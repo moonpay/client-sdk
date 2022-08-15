@@ -1,6 +1,6 @@
 # HyperMint Client SDK
 
-Public client sdk for interacting with HyperMint contracts. 
+Public client sdk for interacting with HyperMint contracts.
 
 Docs can be found at https://docs.hypermint.com/client-sdk
 
@@ -16,4 +16,11 @@ npm install
 npm run build
 ```
 
-The index.html in the root can used for basic testing of the client. Simply replace contract config with that of your contract from the dashboard.
+## Example
+Included in the repo is an example folder `src/example` which contains a list of buttons to call each of the functions available in this SDK.
+
+### Running the example
+1. Make sure you have setup the project for development (detailed above)
+2. Run `npm run example`
+3. Open a browser with the URL in the terminal
+

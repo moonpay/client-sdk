@@ -8,7 +8,8 @@
         "build-sol": "rollup -c rollup-solana.config.js",
         "lint": "eslint --max-warnings=0 **/*.{ts,tsx}",
         "lint:fix": "eslint --fix --max-warnings=0 **/*.{ts,tsx}",
-        "format": "npm run lint && prettier --write **/*.ts"
+        "format": "npm run lint && prettier --write **/*.ts",
+        "example": "npx serve ./src/example"
     },
     "dependencies": {
         "@solana/web3.js": "1.48.0",
@@ -30,6 +31,7 @@
         "rollup": "2.77.0",
         "rollup-plugin-polyfill-node": "0.10.1",
         "rollup-plugin-terser": "7.0.2",
+        "serve": "^14.0.1",
         "ts-loader": "9.3.1",
         "typescript": "4.7.4"
     }

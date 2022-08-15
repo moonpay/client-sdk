@@ -1,6 +1,7 @@
 import { ContractInformation } from './ContractInformation';
 import { TransactionStatus } from './Enums';
 import { Metadata } from './Metadata';
+import { TokenAllocation } from './TokenAllocation';
 import { TokenInformation } from './TokenInformation';
 import { Transaction } from './Transaction';
 
@@ -11,6 +12,10 @@ export interface IContract {
     getTokenBalance: () => Promise<number>;
     getTokens: () => Promise<TokenInformation[]>;
     getToken: (tokenId: number) => Promise<TokenInformation>;
+    getTokenAllocation: (
+        tokenId: string,
+        walletAddress: string
+    ) => Promise<TokenAllocation>;
     getTokenMetadataUrl: (tokenId: number) => Promise<string>;
     getTokenMetadata: (tokenId: number) => Promise<Metadata>;
     getTransactionStatus: (
@@ -43,5 +48,5 @@ export interface IContract {
         amount?: number
     ) => Promise<Transaction>;
 
-    getMoonPayWidgetUrl: (tokenId?: number) => Promise<string>;
+    getMoonPayWidgetUrl: (tokenId: number) => Promise<string>;
 }

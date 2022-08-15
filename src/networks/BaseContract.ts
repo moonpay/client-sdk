@@ -79,6 +79,30 @@ export class BaseContract {
         }
     }
 
+    public async getTokenAllocation(tokenId: string, walletAddress: string) {
+        try {
+            this.logger.log(
+                'getTokenAllocation',
+                `Getting token (${tokenId}) allocation for ${walletAddress} from HM servers...`
+            );
+
+            const { allocation } = await HMAPI.getTokenAllocationForAddress(
+                this._config,
+                tokenId,
+                walletAddress
+            );
+
+            return allocation;
+        } catch (e) {
+            this.logger.log(
+                'getToken',
+                `Failed to get token allocation for ${walletAddress}: ${e.message}`,
+                true,
+                e
+            );
+        }
+    }
+
     public async getContractInformation(): Promise<ContractInformation> {
         if (this.contractInformation) {
             return this.contractInformation;

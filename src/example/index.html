@@ -94,6 +94,7 @@
   <button onclick="contract.getTokenBalance(0)">Get Token Balance</button>
   <button onclick="contract.getTotalMinted(0)">Get Token Minted</button>
   <button onclick="contract.getTokenMetadata(1)">Get Token Metadata</button>
+  <button onclick="contract.getTokenAllocation(0, '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266')">Get Token Allocation</button>
 </div>
 
 <div class="section">
@@ -113,8 +114,8 @@
 <h1>Logs</h1>
 <div id="logs"></div>
 
-<!--<script src="../../dist/client-sdk-solana.js" type="application/javascript"></script>-->
-<script src="../../dist/client-sdk-evm.js" type="application/javascript"></script>
+<!--<script src="./dist/client-sdk-solana.js" type="application/javascript"></script>-->
+<script src="./dist/client-sdk-evm.js" type="application/javascript"></script>
 
 <script>
   function logger(method, message, isFatal) {
@@ -128,15 +129,15 @@
 
 
   const contract = new Contract({
-    contractId: "bf19ddc9-05ab-44cb-ba43-a777de280b3e",
-    contractAddress: "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
+    contractId: 'bf19ddc9-05ab-44cb-ba43-a777de280b3e',
+    contractAddress: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9',
     contractType: NFTContractType.ERC721,
     networkEnvironment: NetworkEnvironment.Emulator,
     networkType: NetworkType.Ethereum,
     networkChain: NetworkChain.EVMLocal,
     enableLogging: true,
     logger,
-    hmURL: "http://localhost:4001"
+    hmURL: "http://localhost:4001/v1"
   });
 
 </script>
