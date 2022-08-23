@@ -575,7 +575,7 @@ export class EVMContract extends BaseContract implements IContract {
 
         const maxPerTransaction = tokenInfo.maxPerTransaction;
 
-        if (amount > maxPerTransaction) {
+        if (maxPerTransaction !== 0 && amount > maxPerTransaction) {
             this.logger.log(
                 'validateBuy',
                 `${amount} Exceeds max per transaction of ${maxPerTransaction}`,

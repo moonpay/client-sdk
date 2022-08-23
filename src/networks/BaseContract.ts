@@ -92,6 +92,13 @@ export class BaseContract {
                 walletAddress
             );
 
+            this.logger.log(
+                'getTokenAllocation',
+                `Allocation`,
+                false,
+                allocation
+            );
+
             return allocation;
         } catch (e) {
             this.logger.log(
