@@ -11,6 +11,7 @@ import {
 } from '../types/Enums';
 import { ERC1155, ERC721 } from '../types/EVMABIs';
 import { IContract } from '../types/IContract';
+import { WalletProvider } from '../types/IWallet';
 import { Transaction } from '../types/Transaction';
 import { BaseContract } from './BaseContract';
 
@@ -19,14 +20,14 @@ declare const window;
 export class EVMContract extends BaseContract implements IContract {
     private signer: ethers.Signer;
 
-    constructor(private config: Config) {
+    constructor(private config: Config, signer?: ethers.Signer) {
         super(config);
 
         const onChange = async () => {
             this.signer = undefined;
 
             try {
-                await this.connect();
+                await this.connect(signer);
 
                 this.config.onWalletChange
                     ? this.config.onWalletChange(true)
@@ -75,9 +76,9 @@ export class EVMContract extends BaseContract implements IContract {
         this.logger.log('getTestWETH', `${amount} test WETH deposited`);
     }
 
-    public async isWalletValid(): Promise<boolean> {
+    public async isWalletValid(signer?: ethers.Signer): Promise<boolean> {
         try {
-            await this.connect();
+            await this.connect(signer);
             this.logger.log('isWalletValid', `Wallet valid`);
             return true;
         } catch (e) {
@@ -86,14 +87,12 @@ export class EVMContract extends BaseContract implements IContract {
         }
     }
 
-    public async connect() {
+    public async connect(wallet: WalletProvider) {
         this.logger.log('connect', 'Connecting...');
 
-        if (!window.ethereum) {
-            this.logger.log('connect', 'MetaMask wallet not found', true);
-        }
-
+        const
         const provider = new ethers.providers.Web3Provider(window.ethereum);
+
         const network = await provider.getNetwork();
 
         if (network.chainId !== this.config.networkChain) {

@@ -1,3 +1,4 @@
+import nodePolyfills from 'rollup-plugin-polyfill-node';
 import typescript from '@rollup/plugin-typescript';
 import nodeResolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
@@ -15,13 +16,14 @@ export default [
         },
         context: 'window',
         plugins: [
+            commonjs(),
+            nodePolyfills(),
             json(),
             nodeResolve({
                 preferBuiltins: false,
                 browser: true
             }),
             typescript(),
-            commonjs(),
             terser()
         ]
     },
@@ -35,13 +37,14 @@ export default [
         },
         context: 'window',
         plugins: [
+            commonjs(),
+            nodePolyfills(),
             json(),
             nodeResolve({
                 preferBuiltins: false,
                 browser: true
             }),
             typescript(),
-            commonjs(),
             terser()
         ]
     }

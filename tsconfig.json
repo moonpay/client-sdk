@@ -9,6 +9,7 @@
         "outDir": "./dist"
     },
     "include": [
+        "global.d.ts",
         "src/**/*"
     ],
     "exclude": [
