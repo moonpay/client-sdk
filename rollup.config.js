@@ -25,25 +25,5 @@ export default [
             typescript(),
             terser()
         ]
-    },
-    {
-        input: './src/client-sdk-evm.ts',
-        output: {
-            file: 'src/example/dist/client-sdk-evm.js',
-            format: 'iife',
-            sourcemap: false,
-            name: 'HyperMint'
-        },
-        context: 'window',
-        plugins: [
-            commonjs(),
-            nodePolyfills(),
-            json(),
-            nodeResolve({
-                preferBuiltins: true
-            }),
-            typescript(),
-            terser()
-        ]
     }
 ];

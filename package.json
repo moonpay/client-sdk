@@ -3,9 +3,9 @@
     "description": "Client SDK for interacting with contracts",
     "scripts": {
         "clean": "rm -rf dist",
-        "build": "npm run clean && rollup -c rollup.config.js && rollup -c rollup-solana.config.js",
-        "build-evm": "rollup -c rollup.config.js",
-        "build-sol": "rollup -c rollup-solana.config.js",
+        "build": "npm run clean && npm run build-evm && npm run build-sol",
+        "build-evm": "rollup -c rollup.config.js && cp ./dist/client-sdk-evm.js ./src/example/dist",
+        "build-sol": "rollup -c rollup-solana.config.js && cp ./dist/client-sdk-solana.js ./src/example/dist",
         "lint": "eslint --max-warnings=0 **/*.{ts,tsx}",
         "lint:fix": "eslint --fix --max-warnings=0 **/*.{ts,tsx}",
         "format": "npm run lint && prettier --write **/*.ts",
