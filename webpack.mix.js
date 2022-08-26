@@ -2,8 +2,8 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const mix = require('laravel-mix');
 
-mix.ts('src/client-sdk-evm.ts', 'dist')
-    .ts('src/client-sdk-solana.ts', 'dist')
+mix.js('src/client-sdk-evm.ts', 'dist')
+    .js('src/client-sdk-solana.ts', 'dist')
     .setPublicPath('dist')
     .webpackConfig({
         resolve: {
@@ -30,4 +30,5 @@ mix.ts('src/client-sdk-evm.ts', 'dist')
                 }
             ]
         }
-    });
+    })
+    .copyDirectory('./dist', './src/example/dist');

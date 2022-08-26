@@ -129,18 +129,17 @@
 </script>
 
 <script type="application/javascript">
-  const { Contract, NFTContractType, NetworkEnvironment, NetworkType, NetworkChain, WalletProvider } = HyperMint;
+  const { Contract, NFTContractType, NetworkEnvironment, NetworkType, NetworkChain } = HyperMint;
 
 
   const contract = new Contract({
-    contractId: "bf19ddc9-05ab-44cb-ba43-a777de280b3a",
-    contractAddress: "0x09635F643e140090A9A8Dcd712eD6285858ceBef",
+    contractId: 'bf19ddc9-05ab-44cb-ba43-a777de280b3a',
+    contractAddress: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
     contractType: NFTContractType.ERC721,
     networkEnvironment: NetworkEnvironment.Emulator,
     networkType: NetworkType.Ethereum,
-    networkChain: NetworkChain.Goerli,
+    networkChain: NetworkChain.EVMLocal,
     enableLogging: true,
-    wallet: WalletProvider.WalletConnect,
     logger,
     hmURL: "http://localhost:4001/v1"
   });

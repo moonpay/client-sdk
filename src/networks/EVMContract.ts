@@ -13,44 +13,42 @@ import {
 import { ERC1155, ERC721 } from '../types/EVMABIs';
 import { IContract } from '../types/IContract';
 import { Transaction } from '../types/Transaction';
-import WalletFactory from '../wallets/WalletFactory';
+import { WalletFactory } from '../wallets/WalletFactory';
 import { BaseContract } from './BaseContract';
 
 declare const window;
 
 export class EVMContract extends BaseContract implements IContract {
     private signer: ethers.Signer;
-
     private wallet: WalletProvider;
 
     constructor(private config: Config) {
         super(config);
-        this.wallet = config.wallet;
 
-        const onChange = async () => {
-            this.signer = undefined;
-
-            try {
-                await this.connect();
-
-                this.config.onWalletChange
-                    ? this.config.onWalletChange(true)
-                    : null;
-            } catch (e) {
-                this.logger.log(
-                    'constructor',
-                    `Failed to connect to wallet: ${e.message}`
-                );
-                this.config.onWalletChange
-                    ? this.config.onWalletChange(false)
-                    : false;
-            }
-        };
-
-        if (window.ethereum) {
-            window.ethereum.on('accountsChanged', onChange);
-            window.ethereum.on('chainChanged', onChange);
-        }
+        // const onChange = async () => {
+        //     this.signer = undefined;
+        //
+        //     try {
+        //         await this.connect();
+        //
+        //         this.config.onWalletChange
+        //             ? this.config.onWalletChange(true)
+        //             : null;
+        //     } catch (e) {
+        //         this.logger.log(
+        //             'constructor',
+        //             `Failed to connect to wallet: ${e.message}`
+        //         );
+        //         this.config.onWalletChange
+        //             ? this.config.onWalletChange(false)
+        //             : false;
+        //     }
+        // };
+        //
+        // if (window.ethereum) {
+        //     window.ethereum.on('accountsChanged', onChange);
+        //     window.ethereum.on('chainChanged', onChange);
+        // }
     }
 
     public async getTestWETH(amount = 0.1) {
@@ -92,33 +90,10 @@ export class EVMContract extends BaseContract implements IContract {
     }
 
     public async connect() {
-        this.logger.log('connect', 'Connecting...');
+        this.logger.log('connect', 'Connecting stuff...');
 
-        const walletFactory = new WalletFactory(this.logger);
-        const walletFactoryProvider = walletFactory.getWalletProvider(
-            this.wallet
-        )();
-
-        const walletProvider = await walletFactoryProvider.getWeb3Provider();
-        const provider = new ethers.providers.Web3Provider(walletProvider);
-
-        const network = await provider.getNetwork();
-
-        if (network.chainId !== this.config.networkChain) {
-            this.logger.log(
-                'connect',
-                'Wrong network selected in MetaMask',
-                true
-            );
-        }
-
-        const accounts = await provider.send('eth_requestAccounts', []);
-
-        if (!accounts.length) {
-            this.logger.log('connect', 'No MetaMask accounts found', true);
-        }
-
-        this.signer = provider.getSigner();
+        const walletFactory = new WalletFactory(this.logger, this.config);
+        this.signer = await walletFactory.getSigner(WalletProvider.Coinbase);
 
         this.logger.log('connect', 'Connected');
     }

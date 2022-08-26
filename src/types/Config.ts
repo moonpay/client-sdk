@@ -2,8 +2,7 @@ import {
     NetworkChain,
     NetworkEnvironment,
     NetworkType,
-    NFTContractType,
-    WalletProvider
+    NFTContractType
 } from './Enums';
 
 export interface Config {
@@ -14,7 +13,6 @@ export interface Config {
     networkEnvironment: NetworkEnvironment;
     networkChain: NetworkChain;
     enableLogging?: boolean;
-    wallet: WalletProvider;
     onWalletChange?: (isValid: boolean) => void;
     logger?: (
         method: string,
