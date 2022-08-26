@@ -1,12 +1,12 @@
 import { ContractInformation } from './ContractInformation';
-import { TransactionStatus } from './Enums';
+import { TransactionStatus, WalletProvider } from './Enums';
 import { Metadata } from './Metadata';
 import { TokenAllocation } from './TokenAllocation';
 import { TokenInformation } from './TokenInformation';
 import { Transaction } from './Transaction';
 
 export interface IContract {
-    connect: () => void;
+    connect: (wallet: WalletProvider) => void;
 
     getContractInformation: () => Promise<ContractInformation>;
     getTokenBalance: () => Promise<number>;
@@ -19,10 +19,11 @@ export interface IContract {
     getTokenMetadataUrl: (tokenId: number) => Promise<string>;
     getTokenMetadata: (tokenId: number) => Promise<Metadata>;
     getTransactionStatus: (
-        transaction: Transaction
+        transaction: Transaction,
+        wallet: WalletProvider
     ) => Promise<TransactionStatus>;
-    getWalletBalance: () => Promise<number>;
-    isWalletValid: () => Promise<boolean>;
+    getWalletBalance: (wallet: WalletProvider) => Promise<number>;
+    isWalletValid: (wallet: WalletProvider) => Promise<boolean>;
     waitForTransaction: (
         transaction: Transaction
     ) => Promise<TransactionStatus>;

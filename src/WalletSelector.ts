@@ -12,7 +12,7 @@ const stylesheet = `
             color: #FFF;
             font-size: 18px;
         }
-        
+
         #hm-overlay {
             background: rgba(0,0,0,.5);
             position: fixed;
@@ -21,7 +21,7 @@ const stylesheet = `
             left: 0;
             right: 0;
         }
-        
+
         #hm-dialog {
             background: #2B2B2B;
             width: 350px;
@@ -30,17 +30,17 @@ const stylesheet = `
             border-radius: 16px;
             padding: 24px;
         }
-        
+
         #hm-dialog-header {
             padding-bottom: 24px;
             position: relative;
             font-size: 20px;
         }
-        
+
         #hm-dialog-header-title {
             text-align: center;
         }
-        
+
         #hm-dialog-header-close {
             position: absolute;
             opacity: 0.5;
@@ -48,15 +48,15 @@ const stylesheet = `
             right: 0;
             cursor: pointer;
         }
-        
+
         #hm-dialog-header-close:hover {
             opacity: 1;
         }
-        
+
         #hm-wallets {
-        
+
         }
-        
+
         #hm-wallet {
             border: 1px solid #3D3D3D;
             border-radius: 16px;
@@ -67,15 +67,15 @@ const stylesheet = `
             cursor: pointer;
             margin-bottom: 12px;
         }
-        
+
         #hm-wallet:hover {
             background: #3D3D3D;
         }
-        
+
         #hm-wallet-logo {
-        
+
         }
-        
+
         #hm-wallet-logo img {
           width: 32px;
           height: 32px;
@@ -86,29 +86,29 @@ const stylesheet = `
 const html = `
     <div id="hm-container">
         <div id="hm-overlay"></div>
-        
+
         <div id="hm-dialog">
             <div id="hm-dialog-header">
                 <div id="hm-dialog-header-title">Connect Wallet</div>
                 <div id="hm-dialog-header-close">X</div>
             </div>
-            
+
             <div id="hm-wallets">
                 <div id="hm-wallet">
                     <div id="hm-wallet-name">MoonPay</div>
                     <div id="hm-wallet-logo"><img src="https://hypermint.com/client-sdk/resources/moonpay.svg" alt="MoonPay"/></div>
                 </div>
-                
+
                 <div id="hm-wallet">
                     <div id="hm-wallet-name">MetaMask</div>
                     <div id="hm-wallet-logo"><img src="https://hypermint.com/client-sdk/resources/metamask.png" alt="MetaMask"/></div>
                 </div>
-                
+
                <div id="hm-wallet">
                     <div id="hm-wallet-name">Coinbase Wallet</div>
                     <div id="hm-wallet-logo"><img src="https://hypermint.com/client-sdk/resources/coinbase.png" alt="Coinbase Wallet"/></div>
                 </div>
-                
+
                 <div id="hm-wallet">
                     <div id="hm-wallet-name">WalletConnect</div>
                     <div id="hm-wallet-logo"><img src="https://hypermint.com/client-sdk/resources/walletconnect.svg" alt="WalletConnect"/></div>

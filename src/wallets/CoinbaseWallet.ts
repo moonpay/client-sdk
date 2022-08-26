@@ -1,5 +1,5 @@
 import CoinbaseWalletSDK from '@coinbase/wallet-sdk';
-import { IWallet } from './../types/IWallet';
+import { IWallet } from '../types/IWallet';
 
 export default class CoinbaseWallet implements IWallet {
     private readonly wallet: CoinbaseWalletSDK;
@@ -10,7 +10,11 @@ export default class CoinbaseWallet implements IWallet {
         });
     }
 
-    public getWeb3Provider() {
+    connect: () => void;
+
+    getBalance: () => Promise<number>;
+
+    public async getWeb3Provider() {
         return this.wallet.makeWeb3Provider();
     }
 

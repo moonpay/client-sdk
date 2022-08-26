@@ -7,12 +7,13 @@ import { ContractInformation } from '../types/ContractInformation';
 import {
     NetworkType,
     NFTContractType,
-    TransactionStatus
+    TransactionStatus,
+    WalletProvider
 } from '../types/Enums';
 import { ERC1155, ERC721 } from '../types/EVMABIs';
 import { IContract } from '../types/IContract';
-import { WalletProvider } from '../types/IWallet';
 import { Transaction } from '../types/Transaction';
+import WalletFactory from '../wallets/WalletFactory';
 import { BaseContract } from './BaseContract';
 
 declare const window;
@@ -20,14 +21,17 @@ declare const window;
 export class EVMContract extends BaseContract implements IContract {
     private signer: ethers.Signer;
 
-    constructor(private config: Config, signer?: ethers.Signer) {
+    private wallet: WalletProvider;
+
+    constructor(private config: Config) {
         super(config);
+        this.wallet = config.wallet;
 
         const onChange = async () => {
             this.signer = undefined;
 
             try {
-                await this.connect(signer);
+                await this.connect();
 
                 this.config.onWalletChange
                     ? this.config.onWalletChange(true)
@@ -76,9 +80,9 @@ export class EVMContract extends BaseContract implements IContract {
         this.logger.log('getTestWETH', `${amount} test WETH deposited`);
     }
 
-    public async isWalletValid(signer?: ethers.Signer): Promise<boolean> {
+    public async isWalletValid(): Promise<boolean> {
         try {
-            await this.connect(signer);
+            await this.connect(); // TODO: Might be best to send a requestAccounts rather than just init the connect everytime
             this.logger.log('isWalletValid', `Wallet valid`);
             return true;
         } catch (e) {
@@ -87,11 +91,16 @@ export class EVMContract extends BaseContract implements IContract {
         }
     }
 
-    public async connect(wallet: WalletProvider) {
+    public async connect() {
         this.logger.log('connect', 'Connecting...');
 
-        const
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const walletFactory = new WalletFactory(this.logger);
+        const walletFactoryProvider = walletFactory.getWalletProvider(
+            this.wallet
+        )();
+
+        const walletProvider = await walletFactoryProvider.getWeb3Provider();
+        const provider = new ethers.providers.Web3Provider(walletProvider);
 
         const network = await provider.getNetwork();
 
@@ -181,6 +190,7 @@ export class EVMContract extends BaseContract implements IContract {
 
     public async getWalletBalance(): Promise<number> {
         if (!this.signer) {
+            // TODO: Might be a better experience to just throw an error here?
             await this.connect();
         }
 

@@ -6,7 +6,7 @@
         "removeComments": true,
         "strict": false,
         "target": "es6",
-        "outDir": "./dist"
+        "outDir": "dist"
     },
     "include": [
         "global.d.ts",

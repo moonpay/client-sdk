@@ -1,5 +1,5 @@
+import { IWallet } from '../types/IWallet';
 import { Logger } from './../helpers/Logger';
-import { IWallet } from './../types/IWallet';
 
 export default class MetaMaskWallet implements IWallet {
     public isConnected = false;
@@ -8,7 +8,11 @@ export default class MetaMaskWallet implements IWallet {
         this.isConnected = !!(window?.ethereum as any)?.selectedAddress;
     }
 
-    getWeb3Provider() {
+    connect: () => void;
+    getAccount: () => any;
+    getBalance: () => Promise<number>;
+
+    public async getWeb3Provider() {
         if (!window.ethereum) {
             this.logger.log('connect', 'MetaMask wallet not found', true);
         }
