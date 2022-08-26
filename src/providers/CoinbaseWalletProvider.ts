@@ -1,16 +1,7 @@
-import { IWallet } from '../types/IWallet';
-import { Logger } from '../helpers/Logger';
 import { ethers } from 'ethers';
+import WalletProvider from './WalletProvider';
 
-declare const window: {
-    ethereum: {
-        providers: any;
-    };
-};
-
-export default class CoinbaseWallet implements IWallet {
-    constructor(private readonly logger: Logger) {}
-
+export default class CoinbaseWalletProvider extends WalletProvider {
     public async getProvider() {
         const coinbaseProvider = window.ethereum?.providers.find(
             (x) => x.isCoinbaseWallet
@@ -21,5 +12,13 @@ export default class CoinbaseWallet implements IWallet {
         }
 
         return new ethers.providers.Web3Provider(coinbaseProvider);
+    }
+
+    public onAccountsChanged(accounts: string[]): void {
+        window.ethereum.on('accountsChanged', console.log);
+    }
+
+    public onChainChanged(chainId: number): void {
+        window.ethereum.on('chainChanged', console.log);
     }
 }

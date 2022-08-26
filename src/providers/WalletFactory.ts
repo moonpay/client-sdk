@@ -1,17 +1,17 @@
+import { IWalletProvider } from './../types/IWalletProvider';
 import { WalletProvider } from '../types/Enums';
 import { Logger } from '../helpers/Logger';
-import { IWallet } from '../types/IWallet';
-import CoinbaseWallet from './CoinbaseWallet';
-import MetaMaskWallet from './MetaMaskWallet';
-import WalletConnectWallet from './WalletConnectWallet';
+import CoinbaseWalletProvider from './CoinbaseWalletProvider';
+import MetaMaskWalletProvider from './MetaMaskWalletProvider';
+import WalletConnectProvider from './WalletConnectProvider';
 import { ethers } from 'ethers';
 import { Config } from '../types/Config';
 
 export class WalletFactory {
-    private readonly walletMap: { [key in WalletProvider]: IWallet } = {
-        [WalletProvider.Metamask]: new MetaMaskWallet(this.logger),
-        [WalletProvider.Coinbase]: new CoinbaseWallet(this.logger),
-        [WalletProvider.WalletConnect]: new WalletConnectWallet(
+    private readonly walletMap: { [key in WalletProvider]: IWalletProvider } = {
+        [WalletProvider.Metamask]: new MetaMaskWalletProvider(this.logger),
+        [WalletProvider.Coinbase]: new CoinbaseWalletProvider(this.logger),
+        [WalletProvider.WalletConnect]: new WalletConnectProvider(
             this.logger,
             this.config
         )

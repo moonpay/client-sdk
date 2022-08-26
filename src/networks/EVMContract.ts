@@ -14,9 +14,9 @@ import {
 import { ERC1155, ERC721 } from '../types/EVMABIs';
 import { IContract } from '../types/IContract';
 import { Transaction } from '../types/Transaction';
-import { WalletFactory } from '../wallets/WalletFactory';
+import { WalletFactory } from '../providers/WalletFactory';
 import { BaseContract } from './BaseContract';
-import { WalletSelector } from '../wallets/WalletSelector';
+import { WalletSelector } from '../providers/WalletSelector';
 
 declare const window;
 

@@ -1,18 +1,22 @@
-import WalletConnectProvider from '@walletconnect/web3-provider';
-import { IWallet } from '../types/IWallet';
+import WalletConnectWeb3Provider from '@walletconnect/web3-provider';
 import { ethers } from 'ethers';
 import { Config } from '../types/Config';
 import { Logger } from '../helpers/Logger';
+import WalletProvider from './WalletProvider';
 
-export default class WalletConnectWallet implements IWallet {
+export default class WalletConnecProvider extends WalletProvider {
+    private provider: WalletConnectWeb3Provider;
+
     constructor(
-        private readonly logger: Logger,
+        protected readonly logger: Logger,
         private readonly config: Config
-    ) {}
+    ) {
+        super(logger);
+    }
 
     public async getProvider(): Promise<ethers.providers.Web3Provider> {
         try {
-            const walletConnectProvider = new WalletConnectProvider({
+            const walletConnectProvider = new WalletConnectWeb3Provider({
                 rpc: {
                     1: 'https://eth-mainnet.g.alchemy.com/v2/jJF7ralq1qiM_ppY8x3fMwPWaSO2DVdx',
                     137: 'https://polygon-mainnet.g.alchemy.com/v2/hzqvgVHD2lGOqvVZoA5FrKnEYXLzlA2N',
@@ -22,6 +26,8 @@ export default class WalletConnectWallet implements IWallet {
                 },
                 chainId: this.config.networkChain
             });
+
+            this.provider = walletConnectProvider;
 
             await walletConnectProvider.enable();
 
@@ -33,5 +39,13 @@ export default class WalletConnectWallet implements IWallet {
                 true
             );
         }
+    }
+
+    public onAccountsChanged(accounts: string[]): void {
+        this.provider.on('accountsChanged', console.log);
+    }
+
+    public onChainChanged(chainId: number): void {
+        this.provider.on('chainChanged', console.log);
     }
 }
