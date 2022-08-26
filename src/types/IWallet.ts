@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
 
 export interface IWallet {
-    getSigner: () => Promise<ethers.Signer>;
+    getProvider: () => Promise<ethers.providers.Web3Provider>;
 }

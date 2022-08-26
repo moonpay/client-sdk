@@ -10,7 +10,6 @@ import {
 } from '../types/Enums';
 import { Metadata } from '../types/Metadata';
 import { TokenInformation } from '../types/TokenInformation';
-import { WalletSelector } from '../WalletSelector';
 
 export class BaseContract {
     public logger = new Logger();
@@ -78,11 +77,6 @@ export class BaseContract {
                 e
             );
         }
-    }
-
-    public openWalletSelector() {
-        this.logger.log('openWalletSelector', 'Opening wallet selector...');
-        WalletSelector.open();
     }
 
     public async getTokenAllocation(tokenId: string, walletAddress: string) {

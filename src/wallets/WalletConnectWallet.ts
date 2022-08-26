@@ -1,9 +1,8 @@
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import { IWallet } from '../types/IWallet';
-import { ethers } from 'ethers';
 
 export default class WalletConnectWallet implements IWallet {
-    public async getSigner(): Promise<ethers.Signer> {
+    public async getProvider(): Promise<any> {
         const provider = new WalletConnectProvider({
             rpc: {
                 5: 'https://eth-goerli.g.alchemy.com/v2/PLCh4QRFSaauIUqazgnZ97NsgKYHYeJr',

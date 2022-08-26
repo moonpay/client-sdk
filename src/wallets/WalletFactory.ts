@@ -4,27 +4,25 @@ import { IWallet } from '../types/IWallet';
 import CoinbaseWallet from './CoinbaseWallet';
 import MetaMaskWallet from './MetaMaskWallet';
 import WalletConnectWallet from './WalletConnectWallet';
-import { Config } from '../types/Config';
 import { ethers } from 'ethers';
 
 export class WalletFactory {
     private readonly walletMap: { [key in WalletProvider]: IWallet } = {
-        [WalletProvider.Metamask]: new MetaMaskWallet(this.logger, this.config),
-        [WalletProvider.Coinbase]: new CoinbaseWallet(this.logger, this.config),
+        [WalletProvider.Metamask]: new MetaMaskWallet(this.logger),
+        [WalletProvider.Coinbase]: new CoinbaseWallet(this.logger),
         [WalletProvider.WalletConnect]: new WalletConnectWallet()
     };
 
-    constructor(
-        private readonly logger: Logger,
-        private readonly config: Config
-    ) {}
+    constructor(private readonly logger: Logger) {}
 
-    public getSigner(walletProvider: WalletProvider): Promise<ethers.Signer> {
+    public getProvider(
+        walletProvider: WalletProvider
+    ): Promise<ethers.providers.Web3Provider> {
         this.logger.log(
             'WalletFactory',
-            `Getting signer for ${walletProvider}...`
+            `Getting provider for ${walletProvider}...`
         );
 
-        return this.walletMap[walletProvider].getSigner();
+        return this.walletMap[walletProvider].getProvider();
     }
 }

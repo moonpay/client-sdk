@@ -81,7 +81,7 @@
 <div class="section">
   <h2>Wallet Management</h2>
   <button onclick="contract.connect()">Connect</button>
-  <button onclick="contract.openWalletSelector()">Open Wallet Selector</button>
+  <button onclick="contract.disconnect()">Disconnect</button>
   <button onclick="contract.isWalletValid()">Is Wallet Valid</button>
   <button onclick="contract.getTestWETH(0.3)">Get 0.1 test WETH</button>
   <button onclick="contract.getWalletBalance()">Get Wallet Balance</button>
@@ -134,11 +134,11 @@
 
   const contract = new Contract({
     contractId: 'bf19ddc9-05ab-44cb-ba43-a777de280b3a',
-    contractAddress: '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707',
+    contractAddress: '0x5e8e02a68A59784f85699F9566Edf78770eDAd18',
     contractType: NFTContractType.ERC721,
-    networkEnvironment: NetworkEnvironment.Emulator,
-    networkType: NetworkType.Ethereum,
-    networkChain: NetworkChain.EVMLocal,
+    networkEnvironment: NetworkEnvironment.Testnet,
+    networkType: NetworkType.Polygon,
+    networkChain: NetworkChain.Mumbai,
     enableLogging: true,
     logger,
     hmURL: "http://localhost:4001/v1"

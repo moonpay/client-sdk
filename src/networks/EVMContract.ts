@@ -15,12 +15,13 @@ import { IContract } from '../types/IContract';
 import { Transaction } from '../types/Transaction';
 import { WalletFactory } from '../wallets/WalletFactory';
 import { BaseContract } from './BaseContract';
+import { WalletSelector } from '../wallets/WalletSelector';
 
 declare const window;
 
 export class EVMContract extends BaseContract implements IContract {
     private signer: ethers.Signer;
-    private wallet: WalletProvider;
+    private walletProvider: WalletProvider;
 
     constructor(private config: Config) {
         super(config);
@@ -89,13 +90,52 @@ export class EVMContract extends BaseContract implements IContract {
         }
     }
 
-    public async connect() {
-        this.logger.log('connect', 'Connecting stuff...');
+    public async connect(walletProvider?: WalletProvider) {
+        if (this.signer) {
+            return;
+        }
 
-        const walletFactory = new WalletFactory(this.logger, this.config);
-        this.signer = await walletFactory.getSigner(WalletProvider.Coinbase);
+        this.logger.log('connect', 'Connecting...');
+
+        if (!walletProvider) {
+            walletProvider = await WalletSelector.selectWallet(this.logger);
+        }
+
+        const walletFactory = new WalletFactory(this.logger);
+        let provider = await walletFactory.getProvider(walletProvider);
+
+        const network = await provider.getNetwork();
+
+        if (network.chainId !== this.config.networkChain) {
+            this.logger.log('getSigner', 'Switching network...');
+
+            try {
+                await provider.send('wallet_switchEthereumChain', [
+                    { chainId: `0x${this.config.networkChain.toString(16)}` }
+                ]);
+
+                provider = await walletFactory.getProvider(walletProvider);
+            } catch (e) {
+                this.logger.log('getSigner', 'Wrong network selected', true, e);
+            }
+        }
+
+        if (walletProvider !== WalletProvider.WalletConnect) {
+            const accounts = await provider.send('eth_requestAccounts', []);
+
+            if (!accounts.length) {
+                this.logger.log('getSigner', 'No accounts found', true);
+            }
+        }
+
+        this.signer = provider.getSigner();
 
         this.logger.log('connect', 'Connected');
+    }
+
+    public disconnect() {
+        this.signer = undefined;
+        this.logger.log('disconnect', 'Disconnected');
     }
 
     public async getTokenBalance(tokenId?: number): Promise<number> {
@@ -165,7 +205,6 @@ export class EVMContract extends BaseContract implements IContract {
 
     public async getWalletBalance(): Promise<number> {
         if (!this.signer) {
-            // TODO: Might be a better experience to just throw an error here?
             await this.connect();
         }
 
