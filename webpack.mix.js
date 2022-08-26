@@ -2,10 +2,12 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const mix = require('laravel-mix');
 
+// TODO: need to use mix.ts here to get proper typescript build checks
 mix.js('src/client-sdk-evm.ts', 'dist')
     .js('src/client-sdk-solana.ts', 'dist')
+    .copyDirectory('./dist', './src/example/dist')
     .setPublicPath('dist')
-    .webpackConfig({
+    .webpackConfig({ // TODO: move to custom config file
         resolve: {
             extensions: ['.ts'],
             fallback: {
@@ -26,9 +28,8 @@ mix.js('src/client-sdk-evm.ts', 'dist')
             rules: [
                 {
                     test: /\.ts$/,
-                    loader: 'ts-loader'
+                    loader: 'ts-loader',
                 }
             ]
         }
-    })
-    .copyDirectory('./dist', './src/example/dist');
+    });

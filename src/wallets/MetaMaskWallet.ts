@@ -17,7 +17,7 @@ export default class MetaMaskWallet implements IWallet {
         );
 
         if (!metamaskProvider) {
-            this.logger.log('getSigner', 'MetaMask wallet not found', true);
+            this.logger.log('getProvider', 'MetaMask wallet not found', true);
         }
 
         return new ethers.providers.Web3Provider(metamaskProvider);

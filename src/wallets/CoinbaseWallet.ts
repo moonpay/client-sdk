@@ -17,7 +17,7 @@ export default class CoinbaseWallet implements IWallet {
         );
 
         if (!coinbaseProvider) {
-            this.logger.log('getSigner', 'Coinbase wallet not found', true);
+            this.logger.log('getProvider', 'Coinbase wallet not found', true);
         }
 
         return new ethers.providers.Web3Provider(coinbaseProvider);

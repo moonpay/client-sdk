@@ -95,19 +95,17 @@ export class EVMContract extends BaseContract implements IContract {
             return;
         }
 
-        this.logger.log('connect', 'Connecting...');
-
         if (!walletProvider) {
             walletProvider = await WalletSelector.selectWallet(this.logger);
         }
 
-        const walletFactory = new WalletFactory(this.logger);
+        const walletFactory = new WalletFactory(this.logger, this.config);
         let provider = await walletFactory.getProvider(walletProvider);
 
         const network = await provider.getNetwork();
 
         if (network.chainId !== this.config.networkChain) {
-            this.logger.log('getSigner', 'Switching network...');
+            this.logger.log('connect', 'Switching network...');
 
             try {
                 await provider.send('wallet_switchEthereumChain', [
@@ -116,7 +114,7 @@ export class EVMContract extends BaseContract implements IContract {
 
                 provider = await walletFactory.getProvider(walletProvider);
             } catch (e) {
-                this.logger.log('getSigner', 'Wrong network selected', true, e);
+                this.logger.log('connect', 'Wrong network selected', true, e);
             }
         }
 
@@ -124,7 +122,7 @@ export class EVMContract extends BaseContract implements IContract {
             const accounts = await provider.send('eth_requestAccounts', []);
 
             if (!accounts.length) {
-                this.logger.log('getSigner', 'No accounts found', true);
+                this.logger.log('connect', 'No accounts found', true);
             }
         }
 

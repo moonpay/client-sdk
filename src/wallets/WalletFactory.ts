@@ -5,15 +5,22 @@ import CoinbaseWallet from './CoinbaseWallet';
 import MetaMaskWallet from './MetaMaskWallet';
 import WalletConnectWallet from './WalletConnectWallet';
 import { ethers } from 'ethers';
+import { Config } from '../types/Config';
 
 export class WalletFactory {
     private readonly walletMap: { [key in WalletProvider]: IWallet } = {
         [WalletProvider.Metamask]: new MetaMaskWallet(this.logger),
         [WalletProvider.Coinbase]: new CoinbaseWallet(this.logger),
-        [WalletProvider.WalletConnect]: new WalletConnectWallet()
+        [WalletProvider.WalletConnect]: new WalletConnectWallet(
+            this.logger,
+            this.config
+        )
     };
 
-    constructor(private readonly logger: Logger) {}
+    constructor(
+        private readonly logger: Logger,
+        private readonly config: Config
+    ) {}
 
     public getProvider(
         walletProvider: WalletProvider
