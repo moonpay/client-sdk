@@ -5,6 +5,7 @@ import { HMAPI } from '../helpers/HMAPI';
 import { Config } from '../types/Config';
 import { ContractInformation } from '../types/ContractInformation';
 import {
+    NetworkChain,
     NetworkType,
     NFTContractType,
     TransactionStatus,
@@ -22,6 +23,41 @@ declare const window;
 export class EVMContract extends BaseContract implements IContract {
     private signer: ethers.Signer;
     private walletProvider: WalletProvider;
+
+    private chains = {
+        [NetworkChain.EVMLocal]: {
+            chainId: '0x539',
+            chainName: 'Local',
+            rpcUrls: ['http://localhost:8545'],
+            nativeCurrency: {
+                name: 'ETH Test',
+                symbol: 'ETEST',
+                decimals: 18
+            }
+        },
+        [NetworkChain.Mumbai]: {
+            chainId: '0x13881',
+            chainName: 'Mumbai',
+            rpcUrls: ['https://matic-mumbai.chainstacklabs.com'],
+            blockExplorerUrls: ['https://mumbai.polygonscan.com'],
+            nativeCurrency: {
+                name: 'MATIC',
+                symbol: 'MATIC',
+                decimals: 18
+            }
+        },
+        [NetworkChain.Polygon]: {
+            chainId: '0x89',
+            chainName: 'Polygon',
+            rpcUrls: ['https://polygon-rpc.com'],
+            blockExplorerUrls: ['https://polygonscan.com'],
+            nativeCurrency: {
+                name: 'MATIC',
+                symbol: 'MATIC',
+                decimals: 18
+            }
+        }
+    };
 
     constructor(private config: Config) {
         super(config);
@@ -107,15 +143,33 @@ export class EVMContract extends BaseContract implements IContract {
         if (network.chainId !== this.config.networkChain) {
             this.logger.log('connect', 'Switching network...');
 
+            const chain = this.chains[this.config.networkChain];
+
             try {
                 await provider.send('wallet_switchEthereumChain', [
-                    { chainId: `0x${this.config.networkChain.toString(16)}` }
+                    { chainId: chain.chainId }
                 ]);
+            } catch (switchError) {
+                this.logger.log(
+                    'connect',
+                    'Adding network...',
+                    false,
+                    switchError
+                );
 
-                provider = await walletFactory.getProvider(walletProvider);
-            } catch (e) {
-                this.logger.log('connect', 'Wrong network selected', true, e);
+                try {
+                    await provider.send('wallet_addEthereumChain', [chain]);
+                } catch (addError) {
+                    this.logger.log(
+                        'connect',
+                        'Failed to select network',
+                        true,
+                        addError
+                    );
+                }
             }
+
+            provider = await walletFactory.getProvider(walletProvider);
         }
 
         if (walletProvider !== WalletProvider.WalletConnect) {
