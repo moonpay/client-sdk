@@ -1,3 +1,4 @@
+import { IWalletProvider } from './../types/IWalletProvider';
 import { ethers } from 'ethers';
 import { EVMHelpers } from '../helpers/EVMHelpers';
 import { GenericHelpers } from '../helpers/GenericHelpers';
@@ -22,7 +23,8 @@ declare const window;
 
 export class EVMContract extends BaseContract implements IContract {
     private signer: ethers.Signer;
-    private walletProvider: WalletProvider;
+
+    private walletProvider: IWalletProvider;
 
     private chains = {
         [NetworkChain.EVMLocal]: {
@@ -61,31 +63,6 @@ export class EVMContract extends BaseContract implements IContract {
 
     constructor(private config: Config) {
         super(config);
-
-        // const onChange = async () => {
-        //     this.signer = undefined;
-        //
-        //     try {
-        //         await this.connect();
-        //
-        //         this.config.onWalletChange
-        //             ? this.config.onWalletChange(true)
-        //             : null;
-        //     } catch (e) {
-        //         this.logger.log(
-        //             'constructor',
-        //             `Failed to connect to wallet: ${e.message}`
-        //         );
-        //         this.config.onWalletChange
-        //             ? this.config.onWalletChange(false)
-        //             : false;
-        //     }
-        // };
-        //
-        // if (window.ethereum) {
-        //     window.ethereum.on('accountsChanged', onChange);
-        //     window.ethereum.on('chainChanged', onChange);
-        // }
     }
 
     public async getTestWETH(amount = 0.1) {
@@ -126,17 +103,19 @@ export class EVMContract extends BaseContract implements IContract {
         }
     }
 
-    public async connect(walletProvider?: WalletProvider) {
+    public async connect(wallet?: WalletProvider) {
         if (this.signer) {
             return;
         }
 
-        if (!walletProvider) {
-            walletProvider = await WalletSelector.selectWallet(this.logger);
+        if (!wallet) {
+            wallet = await WalletSelector.selectWallet(this.logger);
         }
 
         const walletFactory = new WalletFactory(this.logger, this.config);
-        let provider = await walletFactory.getProvider(walletProvider);
+        this.walletProvider = await walletFactory.getProvider(wallet);
+
+        let provider = await this.walletProvider.getWeb3Provider();
 
         const network = await provider.getNetwork();
 
@@ -169,16 +148,18 @@ export class EVMContract extends BaseContract implements IContract {
                 }
             }
 
-            provider = await walletFactory.getProvider(walletProvider);
+            provider = await this.walletProvider.getWeb3Provider();
         }
 
-        if (walletProvider !== WalletProvider.WalletConnect) {
+        if (wallet !== WalletProvider.WalletConnect) {
             const accounts = await provider.send('eth_requestAccounts', []);
 
             if (!accounts.length) {
                 this.logger.log('connect', 'No accounts found', true);
             }
         }
+
+        await this.registerChangeEventListeners();
 
         this.signer = provider.getSigner();
 
@@ -187,6 +168,7 @@ export class EVMContract extends BaseContract implements IContract {
 
     public disconnect() {
         this.signer = undefined;
+        this.removeChangeEventListeners();
         this.logger.log('disconnect', 'Disconnected');
     }
 
@@ -684,5 +666,69 @@ export class EVMContract extends BaseContract implements IContract {
         }
 
         return { totalPrice: price, contractInfo };
+    }
+
+    private async registerChangeEventListeners(): Promise<void> {
+        await Promise.all([
+            this.walletProvider.addAccountChangedEventListener(
+                this.onWalletAccountsChanged
+            ),
+            this.walletProvider.addChainChangedEventListener(
+                this.onWalletChainChanged
+            )
+        ]);
+    }
+
+    private async removeChangeEventListeners(): Promise<void> {
+        await Promise.all([
+            this.walletProvider.removeAccountChangedEventListener(
+                this.onWalletAccountsChanged
+            ),
+            this.walletProvider.removeChainChangedEventListener(
+                this.onWalletChainChanged
+            )
+        ]);
+    }
+
+    private async onWalletAccountsChanged(): Promise<void> {
+        this.disconnect();
+
+        let walletChangeIsValid = false;
+
+        try {
+            await this.connect();
+
+            walletChangeIsValid = true;
+        } catch (e) {
+            this.logger.log(
+                'constructor',
+                `Failed to connect to wallet: ${e.message}`
+            );
+        } finally {
+            this.config.onWalletChange
+                ? this.config.onWalletChange(walletChangeIsValid)
+                : null;
+        }
+    }
+
+    private async onWalletChainChanged(chainId: number): Promise<void> {
+        this.disconnect();
+
+        let walletChangeIsValid = false;
+
+        try {
+            await this.connect();
+
+            walletChangeIsValid = true;
+        } catch (e) {
+            this.logger.log(
+                'constructor',
+                `Failed to connect to wallet: ${e.message}`
+            );
+        } finally {
+            this.config.onWalletChange
+                ? this.config.onWalletChange(walletChangeIsValid)
+                : null;
+        }
     }
 }

@@ -14,7 +14,7 @@ export default class WalletConnecProvider extends WalletProvider {
         super(logger);
     }
 
-    public async getProvider(): Promise<ethers.providers.Web3Provider> {
+    public async getWeb3Provider(): Promise<ethers.providers.Web3Provider> {
         try {
             const walletConnectProvider = new WalletConnectWeb3Provider({
                 rpc: {
@@ -41,11 +41,25 @@ export default class WalletConnecProvider extends WalletProvider {
         }
     }
 
-    public onAccountsChanged(accounts: string[]): void {
-        this.provider.on('accountsChanged', console.log);
+    public addAccountChangedEventListener(
+        callback: (accounts: string[]) => void
+    ) {
+        this.provider.on('accountsChanged', callback);
     }
 
-    public onChainChanged(chainId: number): void {
-        this.provider.on('chainChanged', console.log);
+    public addChainChangedEventListener(callback: (chainId: number) => void) {
+        this.provider.on('chainChanged', callback);
+    }
+
+    public removeAccountChangedEventListener(
+        callback: (accounts: string[]) => void
+    ) {
+        this.provider.removeListener('accountsChanged', callback);
+    }
+
+    public removeChainChangedEventListener(
+        callback: (chainId: number) => void
+    ) {
+        this.provider.removeListener('chainChanged', callback);
     }
 }

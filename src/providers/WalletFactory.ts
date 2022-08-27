@@ -4,7 +4,6 @@ import { Logger } from '../helpers/Logger';
 import CoinbaseWalletProvider from './CoinbaseWalletProvider';
 import MetaMaskWalletProvider from './MetaMaskWalletProvider';
 import WalletConnectProvider from './WalletConnectProvider';
-import { ethers } from 'ethers';
 import { Config } from '../types/Config';
 
 export class WalletFactory {
@@ -22,14 +21,12 @@ export class WalletFactory {
         private readonly config: Config
     ) {}
 
-    public getProvider(
-        walletProvider: WalletProvider
-    ): Promise<ethers.providers.Web3Provider> {
+    public getProvider(walletProvider: WalletProvider): IWalletProvider {
         this.logger.log(
             'WalletFactory',
             `Getting provider for ${walletProvider}...`
         );
 
-        return this.walletMap[walletProvider].getProvider();
+        return this.walletMap[walletProvider];
     }
 }
