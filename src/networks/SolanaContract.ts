@@ -21,6 +21,9 @@ export class SolanaContract extends BaseContract implements IContract {
     constructor(private config: Config) {
         super(config);
     }
+    public async getConnectedWallet(): Promise<any> {
+        throw new Error('Not supported');
+    }
 
     private static parseTransaction(transaction: any): any {
         transaction.feePayer = new PublicKey(transaction.feePayer);
@@ -35,7 +38,7 @@ export class SolanaContract extends BaseContract implements IContract {
             }
         }
 
-        if(transaction.signatures){
+        if (transaction.signatures) {
             for (const signature of transaction.signatures) {
                 signature.publicKey = new PublicKey(signature.publicKey);
 

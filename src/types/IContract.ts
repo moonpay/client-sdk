@@ -7,7 +7,7 @@ import { Transaction } from './Transaction';
 
 export interface IContract {
     connect: (wallet: WalletProvider) => void;
-
+    getConnectedWallet: () => Promise<any>; // TODO: add a connected wallet type
     getContractInformation: () => Promise<ContractInformation>;
     getTokenBalance: () => Promise<number>;
     getTokens: () => Promise<TokenInformation[]>;
@@ -19,11 +19,10 @@ export interface IContract {
     getTokenMetadataUrl: (tokenId: number) => Promise<string>;
     getTokenMetadata: (tokenId: number) => Promise<Metadata>;
     getTransactionStatus: (
-        transaction: Transaction,
-        wallet: WalletProvider
+        transaction: Transaction
     ) => Promise<TransactionStatus>;
-    getWalletBalance: (wallet: WalletProvider) => Promise<number>;
-    isWalletValid: (wallet: WalletProvider) => Promise<boolean>;
+    getWalletBalance: () => Promise<number>;
+    isWalletValid: () => Promise<boolean>;
     waitForTransaction: (
         transaction: Transaction
     ) => Promise<TransactionStatus>;

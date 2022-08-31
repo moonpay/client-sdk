@@ -18,6 +18,7 @@ import { Transaction } from '../types/Transaction';
 import { WalletFactory } from '../providers/WalletFactory';
 import { BaseContract } from './BaseContract';
 import { WalletSelector } from '../providers/WalletSelector';
+import { formatEther, getAddress } from 'ethers/lib/utils';
 
 declare const window;
 
@@ -25,6 +26,8 @@ export class EVMContract extends BaseContract implements IContract {
     private signer: ethers.Signer;
 
     private walletProvider: IWalletProvider;
+
+    private ethereumProvider: any;
 
     private chains = {
         [NetworkChain.EVMLocal]: {
@@ -58,11 +61,54 @@ export class EVMContract extends BaseContract implements IContract {
                 symbol: 'MATIC',
                 decimals: 18
             }
+        },
+        [NetworkChain.Goerli]: {
+            chainId: '0x5',
+            chainName: 'Goerli',
+            rpcUrls: [
+                'https://eth-goerli.g.alchemy.com/v2/PLCh4QRFSaauIUqazgnZ97NsgKYHYeJr'
+            ],
+            blockExplorerUrls: ['https://etherscan.io'],
+            nativeCurrency: {
+                name: 'ETH',
+                symbol: 'ETH',
+                decimals: 18
+            }
         }
     };
 
     constructor(private config: Config) {
         super(config);
+    }
+
+    public async getConnectedWallet(): Promise<any> {
+        try {
+            if (!this.ethereumProvider) throw new Error();
+
+            const accounts = await this.ethereumProvider.request({
+                method: 'eth_accounts'
+            });
+
+            if (!accounts?.length) throw new Error();
+
+            const address = getAddress(accounts[0]);
+            const balanceHex: string = await this.ethereumProvider.request({
+                method: 'eth_getBalance',
+                params: [address, 'latest']
+            });
+
+            return {
+                isConnected: true,
+                address,
+                balance: formatEther(balanceHex) // TODO: might need to add an object here to return the correct symbol
+            };
+        } catch (e) {
+            return {
+                isConnected: false,
+                address: undefined,
+                balance: undefined
+            };
+        }
     }
 
     public async getTestWETH(amount = 0.1) {
@@ -109,13 +155,25 @@ export class EVMContract extends BaseContract implements IContract {
         }
 
         if (!wallet) {
-            wallet = await WalletSelector.selectWallet(this.logger);
+            try {
+                const selectedWallet = await WalletSelector.selectWallet(
+                    this.logger
+                );
+
+                wallet = selectedWallet;
+            } catch (e) {
+                this.logger.log('connect', 'Failed selecting wallet', false, e);
+                return;
+            }
         }
 
         const walletFactory = new WalletFactory(this.logger, this.config);
+
         this.walletProvider = await walletFactory.getProvider(wallet);
 
         let provider = await this.walletProvider.getWeb3Provider();
+
+        this.ethereumProvider = provider.provider;
 
         const network = await provider.getNetwork();
 
@@ -123,6 +181,12 @@ export class EVMContract extends BaseContract implements IContract {
             this.logger.log('connect', 'Switching network...');
 
             const chain = this.chains[this.config.networkChain];
+
+            if (!chain) {
+                this.logger.log('connect', 'Failed to select network', true);
+
+                return;
+            }
 
             try {
                 await provider.send('wallet_switchEthereumChain', [
@@ -361,6 +425,7 @@ export class EVMContract extends BaseContract implements IContract {
     ): Promise<Transaction> {
         const contract = await this.getEVMContract();
         const address = await this.signer.getAddress();
+
         this.logger.log(
             'buyAuthorised',
             `Buying ${tokenId ?? ''} x ${amount}. Validating...`
@@ -669,66 +734,24 @@ export class EVMContract extends BaseContract implements IContract {
     }
 
     private async registerChangeEventListeners(): Promise<void> {
-        await Promise.all([
-            this.walletProvider.addAccountChangedEventListener(
-                this.onWalletAccountsChanged
-            ),
-            this.walletProvider.addChainChangedEventListener(
-                this.onWalletChainChanged
-            )
-        ]);
+        this.ethereumProvider.on(
+            'chainChanged',
+            this.onWalletChainChanged.bind(this)
+        );
     }
 
     private async removeChangeEventListeners(): Promise<void> {
-        await Promise.all([
-            this.walletProvider.removeAccountChangedEventListener(
-                this.onWalletAccountsChanged
-            ),
-            this.walletProvider.removeChainChangedEventListener(
-                this.onWalletChainChanged
-            )
-        ]);
+        this.ethereumProvider.removeListener(
+            'chainChanged',
+            this.onWalletChainChanged.bind(this)
+        );
     }
 
-    private async onWalletAccountsChanged(): Promise<void> {
-        this.disconnect();
+    private async onWalletChainChanged(chainId: any): Promise<void> {
+        const chainIdDecimal = parseInt(chainId, 16);
 
-        let walletChangeIsValid = false;
-
-        try {
-            await this.connect();
-
-            walletChangeIsValid = true;
-        } catch (e) {
-            this.logger.log(
-                'constructor',
-                `Failed to connect to wallet: ${e.message}`
-            );
-        } finally {
-            this.config.onWalletChange
-                ? this.config.onWalletChange(walletChangeIsValid)
-                : null;
-        }
-    }
-
-    private async onWalletChainChanged(chainId: number): Promise<void> {
-        this.disconnect();
-
-        let walletChangeIsValid = false;
-
-        try {
-            await this.connect();
-
-            walletChangeIsValid = true;
-        } catch (e) {
-            this.logger.log(
-                'constructor',
-                `Failed to connect to wallet: ${e.message}`
-            );
-        } finally {
-            this.config.onWalletChange
-                ? this.config.onWalletChange(walletChangeIsValid)
-                : null;
+        if (chainIdDecimal !== this.config.networkChain) {
+            this.logger.log('changeChain', 'Chain is unsupported', true);
         }
     }
 }
