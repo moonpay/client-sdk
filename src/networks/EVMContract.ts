@@ -169,7 +169,7 @@ export class EVMContract extends BaseContract implements IContract {
 
                 wallet = selectedWallet;
             } catch (e) {
-                this.logger.log('connect', 'Failed selecting wallet', false, e);
+                this.logger.log('connect', 'Failed selecting wallet', true);
                 return;
             }
         }

@@ -129,7 +129,7 @@ const html = `
 
 export class WalletSelector {
     public static selectWallet(logger: Logger): Promise<WalletProvider> {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             document.body.insertAdjacentHTML('beforeend', html + stylesheet);
 
             const container = document.getElementById('hm-container');
@@ -140,6 +140,7 @@ export class WalletSelector {
             const onClose = () => {
                 container.remove();
                 logger.log('selectWallet', 'User closed wallet selector');
+                reject();
             };
 
             container.onclick = onClose;
