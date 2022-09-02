@@ -4,10 +4,11 @@ import { Metadata } from './Metadata';
 import { TokenAllocation } from './TokenAllocation';
 import { TokenInformation } from './TokenInformation';
 import { Transaction } from './Transaction';
+import { IConnectedWallet } from './Wallet';
 
 export interface IContract {
     connect: (wallet: WalletProvider) => void;
-    getConnectedWallet: () => Promise<any>; // TODO: add a connected wallet type
+    getConnectedWallet: () => Promise<IConnectedWallet>;
     getContractInformation: () => Promise<ContractInformation>;
     getTokenBalance: () => Promise<number>;
     getTokens: () => Promise<TokenInformation[]>;

@@ -19,6 +19,7 @@ import { WalletFactory } from '../providers/WalletFactory';
 import { BaseContract } from './BaseContract';
 import { WalletSelector } from '../providers/WalletSelector';
 import { formatEther, getAddress } from 'ethers/lib/utils';
+import { IConnectedWallet } from '../types/Wallet';
 
 declare const window;
 
@@ -81,7 +82,7 @@ export class EVMContract extends BaseContract implements IContract {
         super(config);
     }
 
-    public async getConnectedWallet(): Promise<any> {
+    public async getConnectedWallet(): Promise<IConnectedWallet> {
         try {
             if (!this.ethereumProvider) throw new Error();
 
@@ -97,10 +98,16 @@ export class EVMContract extends BaseContract implements IContract {
                 params: [address, 'latest']
             });
 
+            const currentChain = this.chains[this.config.networkChain];
+
             return {
                 isConnected: true,
                 address,
-                balance: formatEther(balanceHex) // TODO: might need to add an object here to return the correct symbol
+                balance: {
+                    value: balanceHex,
+                    formatted: formatEther(balanceHex),
+                    symbol: currentChain?.nativeCurrency?.symbol
+                }
             };
         } catch (e) {
             return {
