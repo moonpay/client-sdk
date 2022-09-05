@@ -3,48 +3,60 @@ import { Logger } from '../helpers/Logger';
 
 const stylesheet = `
     <style>
-        #hm-container {
-            display: flex;
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            font-family: 'Helvetica', 'Arial', sans-serif;
-            color: #FFF;
-            font-size: 18px;
-        }
-
-        #hm-container #hm-overlay {
+        #hm-overlay {
             background: rgba(0,0,0,.5);
-            position: fixed;
-            top: 0;
             bottom: 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            color: #FFF;
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 18px;
             left: 0;
+            position: fixed;
             right: 0;
+            top: 0;
+            visibility: hidden;
+            opacity: 0;
+            z-index: 1000;
+            transition: all .15s ease-in;
         }
 
-        #hm-container #hm-dialog {
+        #hm-overlay.hm-overlay--active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        #hm-dialog {
             background: #2B2B2B;
-            width: 350px;
-            margin: auto;
+            width: 100%;
             z-index: 100;
-            border-radius: 16px;
-            padding: 24px;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            padding: 24px 24px 60px 24px;
+            visibility: hidden;
+            opacity: 0;
+            transform: translateY(100px);
+            transition: all .2s ease-in;
         }
 
-        #hm-container #hm-dialog-header {
+        #hm-dialog.hm-dialog--active {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0px);
+        }
+
+        #hm-dialog-header {
             padding-bottom: 24px;
             position: relative;
             font-size: 20px;
         }
 
-        #hm-container #hm-dialog-header-title {
+        #hm-dialog-header-title {
             text-align: center;
         }
 
-        #hm-container #hm-dialog-header-close {
+        #hm-dialog-header-close {
             align-items: center;
             cursor: pointer;
             display: flex;
@@ -55,13 +67,14 @@ const stylesheet = `
             position: absolute;
             right: 0;
             top: 0;
+            transition: all .15s ease-in;
         }
 
-        #hm-container #hm-dialog-header-close:hover {
+        #hm-dialog-header-close:hover {
             opacity: 1;
         }
 
-        #hm-container .hm-wallet {
+        .hm-wallet {
             border: 1px solid #3D3D3D;
             border-radius: 16px;
             display: flex;
@@ -70,15 +83,17 @@ const stylesheet = `
             justify-content: space-between;
             cursor: pointer;
             margin-bottom: 12px;
+            background: transparent;
+            transition: background .15s ease-in-out;
         }
 
-        #hm-container .hm-wallet:hover {
-            background: #3D3D3D;m
+        .hm-wallet:hover {
+            background: #3D3D3D;
         }
 
-        #hm-container .hm-wallet-logo img {
-          width: 32px;
-          height: 32px;
+        .hm-wallet-logo img {
+        width: 32px;
+        height: 32px;
         }
 
         .hm-dialog-close-line {
@@ -91,13 +106,24 @@ const stylesheet = `
         .hm-dialog-close-line--last {
             transform: rotate(-135deg) translate(-1px, -1px);
         }
+
+        @media screen and (min-width: 440px) {
+            #hm-overlay {
+                align-items: center;
+            }
+
+            #hm-dialog {
+                border-radius: 16px;
+                max-width: 350px;
+                padding: 24px;
+                transform: translateY(30px);
+            }
+        }
     </style>
 `;
 
 const html = `
-    <div id="hm-container">
-        <div id="hm-overlay"></div>
-
+    <div id="hm-overlay">
         <div id="hm-dialog">
             <div id="hm-dialog-header">
                 <div id="hm-dialog-header-title">Connect Wallet</div>
