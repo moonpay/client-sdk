@@ -1,3 +1,4 @@
+import { PaymentProvider } from './../types/Enums';
 import { IWalletProvider } from './../types/IWalletProvider';
 import { ethers } from 'ethers';
 import { EVMHelpers } from '../helpers/EVMHelpers';
@@ -157,10 +158,12 @@ export class EVMContract extends BaseContract implements IContract {
         }
     }
 
-    public async connect(wallet?: WalletProvider) {
+    public async connect(wallet?: WalletProvider, purchasingTokenId?: number) {
         if (this.signer) {
             return;
         }
+
+        // If purchasing token then we should add the moonpay option to the wallet selector
 
         if (!wallet) {
             try {
@@ -168,12 +171,24 @@ export class EVMContract extends BaseContract implements IContract {
                     this.logger
                 );
 
-                wallet = selectedWallet;
+                if (selectedWallet === PaymentProvider.MoonPay) {
+                    WalletSelector.openPaymentProcessor(
+                        selectedWallet,
+                        await this.getMoonPayWidgetUrl(0) // TODO: this only works for 721. We need a way to only show moonpay if someone is purchasing and not just connecting
+                    );
+
+                    return;
+                } else {
+                    wallet = selectedWallet;
+                }
             } catch (e) {
                 this.logger.log('connect', 'Failed selecting wallet', true);
                 return;
             }
         }
+
+        // TODO: it would be good for the selector to have a loading state and only close after transaction is sent
+        WalletSelector.closeSelector(this.logger);
 
         const walletFactory = new WalletFactory(this.logger, this.config);
 
@@ -348,7 +363,7 @@ export class EVMContract extends BaseContract implements IContract {
         tokenId?: number,
         wait = true
     ): Promise<Transaction> {
-        const contract = await this.getEVMContract();
+        const contract = await this.getEVMContract(tokenId);
 
         this.logger.log(
             'buy',
@@ -400,15 +415,24 @@ export class EVMContract extends BaseContract implements IContract {
 
         if (this.config.contractType === NFTContractType.ERC721) {
             if (isPolygon) {
-                buyTransaction = await contract.buy(amount);
+                buyTransaction = await contract.buy(amount, {
+                    gasLimit: 100_000
+                });
             } else {
-                buyTransaction = await contract.buy(amount);
+                buyTransaction = await contract.buy(amount, {
+                    gasLimit: 100_000
+                });
             }
         } else {
             if (isPolygon) {
-                buyTransaction = await contract.buy(tokenId, amount);
+                buyTransaction = await contract.buy(tokenId, amount, {
+                    gasLimit: 100_000
+                });
             } else {
-                buyTransaction = await contract.buy(tokenId, amount);
+                buyTransaction = await contract.buy(tokenId, amount, {
+                    value: ethers.utils.parseEther(totalPrice.toString()),
+                    gasLimit: 100_000
+                });
             }
         }
 
@@ -429,7 +453,7 @@ export class EVMContract extends BaseContract implements IContract {
         expires?: number,
         signature?: string
     ): Promise<Transaction> {
-        const contract = await this.getEVMContract();
+        const contract = await this.getEVMContract(tokenId);
         const address = await this.signer.getAddress();
 
         this.logger.log(
@@ -661,9 +685,11 @@ export class EVMContract extends BaseContract implements IContract {
         return this.config.networkType === NetworkType.Polygon;
     }
 
-    private async getEVMContract(): Promise<ethers.Contract> {
+    private async getEVMContract(
+        purchasingTokenId?: number
+    ): Promise<ethers.Contract> {
         if (!this.signer) {
-            await this.connect();
+            await this.connect(undefined, purchasingTokenId);
         }
 
         return new ethers.Contract(
@@ -744,12 +770,19 @@ export class EVMContract extends BaseContract implements IContract {
             'chainChanged',
             this.onWalletChainChanged.bind(this)
         );
+
+        this.ethereumProvider.on('accountsChanged', this.connect.bind(this));
     }
 
     private async removeChangeEventListeners(): Promise<void> {
         this.ethereumProvider.removeListener(
             'chainChanged',
             this.onWalletChainChanged.bind(this)
+        );
+
+        this.ethereumProvider.removeListener(
+            'accountsChanged',
+            this.connect.bind(this)
         );
     }
 
@@ -759,5 +792,7 @@ export class EVMContract extends BaseContract implements IContract {
         if (chainIdDecimal !== this.config.networkChain) {
             this.logger.log('changeChain', 'Chain is unsupported', true);
         }
+
+        this.connect();
     }
 }

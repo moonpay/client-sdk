@@ -7,7 +7,7 @@ import { Transaction } from './Transaction';
 import { IConnectedWallet } from './Wallet';
 
 export interface IContract {
-    connect: (wallet: WalletProvider) => void;
+    connect: (wallet?: WalletProvider, purchasingTokenId?: number) => void;
     getConnectedWallet: () => Promise<IConnectedWallet>;
     getContractInformation: () => Promise<ContractInformation>;
     getTokenBalance: () => Promise<number>;
