@@ -80,6 +80,7 @@ export class EVMContract extends BaseContract implements IContract {
 
     constructor(private config: Config) {
         super(config);
+        WalletSelector.init();
     }
 
     public async getConnectedWallet(): Promise<IConnectedWallet> {
@@ -323,15 +324,16 @@ export class EVMContract extends BaseContract implements IContract {
                     this.config,
                     this.signer
                 );
-                balance = await contract.balanceOf(
-                    window.ethereum.selectedAddress
-                );
+
+                balance = contract.balanceOf(await this.signer.getAddress());
             } else {
                 balance = await this.signer.getBalance();
             }
 
             const result = Number(ethers.utils.formatEther(balance));
+
             this.logger.log('getWalletBalance', `Wallet balance: ${result}`);
+
             return result;
         } catch (e) {
             this.logger.log(
@@ -381,6 +383,7 @@ export class EVMContract extends BaseContract implements IContract {
                 this.config,
                 this.signer
             );
+
             const approveTransaction = await wethContract.approve(
                 this.config.contractAddress,
                 ethers.utils.parseEther(totalPrice.toString())
@@ -399,17 +402,13 @@ export class EVMContract extends BaseContract implements IContract {
             if (isPolygon) {
                 buyTransaction = await contract.buy(amount);
             } else {
-                buyTransaction = await contract.buy(amount, {
-                    value: ethers.utils.parseEther(totalPrice.toString())
-                });
+                buyTransaction = await contract.buy(amount);
             }
         } else {
             if (isPolygon) {
                 buyTransaction = await contract.buy(tokenId, amount);
             } else {
-                buyTransaction = await contract.buy(tokenId, amount, {
-                    value: ethers.utils.parseEther(totalPrice.toString())
-                });
+                buyTransaction = await contract.buy(tokenId, amount);
             }
         }
 

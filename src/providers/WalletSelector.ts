@@ -154,22 +154,32 @@ const html = `
 `;
 
 export class WalletSelector {
+    public static init() {
+        document.body.insertAdjacentHTML('beforeend', html + stylesheet);
+    }
+
     public static selectWallet(logger: Logger): Promise<WalletProvider> {
         return new Promise((resolve, reject) => {
-            document.body.insertAdjacentHTML('beforeend', html + stylesheet);
+            const overlay = document.getElementById('hm-overlay');
+            const dialog = document.getElementById('hm-dialog');
 
-            const container = document.getElementById('hm-container');
+            overlay.classList.add('hm-overlay--active');
+            dialog.classList.add('hm-dialog--active');
+
             const closeButton = document.getElementById(
                 'hm-dialog-header-close'
             );
 
             const onClose = () => {
-                container.remove();
                 logger.log('selectWallet', 'User closed wallet selector');
+
+                overlay.classList.remove('hm-overlay--active');
+                dialog.classList.remove('hm-dialog--active');
+
                 reject();
             };
 
-            container.onclick = onClose;
+            overlay.onclick = onClose;
             closeButton.onclick = onClose;
 
             const wallets = document.querySelectorAll('.hm-wallet');
@@ -177,7 +187,6 @@ export class WalletSelector {
             for (const wallet of wallets) {
                 wallet.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    container.remove();
 
                     return resolve(
                         wallet.getAttribute('data-wallet') as WalletProvider
