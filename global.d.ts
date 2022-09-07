@@ -6,6 +6,8 @@ declare global {
             providers: any;
             on: any; // TODO: add type here
             removeListener: any; // TODO: add type here
+            isCoinbaseWallet?: boolean;
+            isMetaMask?: boolean;
         };
     }
 }

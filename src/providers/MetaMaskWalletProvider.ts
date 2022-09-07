@@ -3,7 +3,9 @@ import WalletProvider from './WalletProvider';
 
 export default class MetaMaskWalletProvider extends WalletProvider {
     public async getWeb3Provider() {
-        let metamaskProvider: any = window?.ethereum;
+        let metamaskProvider: any = window?.ethereum?.isMetaMask
+            ? window?.ethereum
+            : undefined;
 
         if (window?.ethereum?.providers?.length) {
             window.ethereum.providers.forEach(async (p) => {
