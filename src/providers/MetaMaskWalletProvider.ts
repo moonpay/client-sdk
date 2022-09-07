@@ -3,9 +3,15 @@ import WalletProvider from './WalletProvider';
 
 export default class MetaMaskWalletProvider extends WalletProvider {
     public async getWeb3Provider() {
-        const metamaskProvider = window.ethereum?.providers.find(
-            (x) => x.isMetaMask
-        );
+        let metamaskProvider: any = window?.ethereum;
+
+        if (window?.ethereum?.providers?.length) {
+            window.ethereum.providers.forEach(async (p) => {
+                if (p.isMetaMask) {
+                    metamaskProvider = p;
+                }
+            });
+        }
 
         if (!metamaskProvider) {
             this.logger.log('getProvider', 'MetaMask wallet not found', true);

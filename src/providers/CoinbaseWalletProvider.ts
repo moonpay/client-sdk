@@ -3,9 +3,15 @@ import WalletProvider from './WalletProvider';
 
 export default class CoinbaseWalletProvider extends WalletProvider {
     public async getWeb3Provider() {
-        const coinbaseProvider = window.ethereum?.providers.find(
-            (x) => x.isCoinbaseWallet
-        );
+        let coinbaseProvider: any = window?.ethereum;
+
+        if (window?.ethereum?.providers?.length) {
+            window.ethereum.providers.forEach(async (p) => {
+                if (p.isCoinbaseWallet) {
+                    coinbaseProvider = p;
+                }
+            });
+        }
 
         if (!coinbaseProvider) {
             this.logger.log('getProvider', 'Coinbase wallet not found', true);

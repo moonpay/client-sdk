@@ -774,7 +774,10 @@ export class EVMContract extends BaseContract implements IContract {
             this.onWalletChainChanged.bind(this)
         );
 
-        this.ethereumProvider.on('accountsChanged', this.connect.bind(this));
+        this.ethereumProvider.on(
+            'accountsChanged',
+            this.onAccountChanged.bind(this)
+        );
     }
 
     private async removeChangeEventListeners(): Promise<void> {
@@ -785,17 +788,35 @@ export class EVMContract extends BaseContract implements IContract {
 
         this.ethereumProvider.removeListener(
             'accountsChanged',
-            this.connect.bind(this)
+            this.onAccountChanged.bind(this)
         );
     }
 
     private async onWalletChainChanged(chainId: any): Promise<void> {
         const chainIdDecimal = parseInt(chainId, 16);
+        const isSupported = chainIdDecimal === this.config.networkChain;
 
-        if (chainIdDecimal !== this.config.networkChain) {
-            this.logger.log('changeChain', 'Chain is unsupported', true);
+        if (!isSupported) {
+            this.logger.log('changeChain', 'Chain is unsupported');
         }
 
-        this.connect();
+        const event = new CustomEvent('hmWalletChainChanged', {
+            detail: {
+                chainId,
+                isSupported
+            }
+        });
+
+        window.dispatchEvent(event);
+    }
+
+    private async onAccountChanged(accounts): Promise<void> {
+        const event = new CustomEvent('hmWalletAccountChanged', {
+            detail: {
+                accounts
+            }
+        });
+
+        window.dispatchEvent(event);
     }
 }
