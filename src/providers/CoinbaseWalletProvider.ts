@@ -13,28 +13,4 @@ export default class CoinbaseWalletProvider extends WalletProvider {
 
         return new ethers.providers.Web3Provider(coinbaseProvider);
     }
-
-    public addAccountChangedEventListener(
-        callback: (acounts: string[]) => void
-    ): void {
-        window.ethereum.on('accountsChanged', callback);
-    }
-
-    public addChainChangedEventListener(
-        callback: (chainId: number) => void
-    ): void {
-        window.ethereum.on('chainChanged', callback);
-    }
-
-    public removeAccountChangedEventListener(
-        callback: (accounts: string[]) => void
-    ) {
-        window.ethereum.removeListener('accountsChanged', callback);
-    }
-
-    public removeChainChangedEventListener(
-        callback: (chainId: number) => void
-    ) {
-        window.ethereum.removeListener('chainChanged', callback);
-    }
 }

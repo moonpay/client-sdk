@@ -5,8 +5,6 @@ import { Logger } from '../helpers/Logger';
 import WalletProvider from './WalletProvider';
 
 export default class WalletConnecProvider extends WalletProvider {
-    private provider: WalletConnectWeb3Provider;
-
     constructor(
         protected readonly logger: Logger,
         private readonly config: Config
@@ -27,8 +25,6 @@ export default class WalletConnecProvider extends WalletProvider {
                 chainId: this.config.networkChain
             });
 
-            this.provider = walletConnectProvider;
-
             await walletConnectProvider.enable();
 
             return new ethers.providers.Web3Provider(walletConnectProvider);
@@ -39,27 +35,5 @@ export default class WalletConnecProvider extends WalletProvider {
                 true
             );
         }
-    }
-
-    public addAccountChangedEventListener(
-        callback: (accounts: string[]) => void
-    ) {
-        this.provider.on('accountsChanged', callback);
-    }
-
-    public addChainChangedEventListener(callback: (chainId: number) => void) {
-        this.provider.on('chainChanged', callback);
-    }
-
-    public removeAccountChangedEventListener(
-        callback: (accounts: string[]) => void
-    ) {
-        this.provider.removeListener('accountsChanged', callback);
-    }
-
-    public removeChainChangedEventListener(
-        callback: (chainId: number) => void
-    ) {
-        this.provider.removeListener('chainChanged', callback);
     }
 }
