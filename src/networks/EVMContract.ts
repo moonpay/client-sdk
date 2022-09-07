@@ -31,6 +31,8 @@ export class EVMContract extends BaseContract implements IContract {
 
     private ethereumProvider: any;
 
+    private isPayingWithMoonPay: boolean = false;
+
     private chains = {
         [NetworkChain.EVMLocal]: {
             chainId: '0x539',
@@ -167,11 +169,17 @@ export class EVMContract extends BaseContract implements IContract {
 
         if (!wallet) {
             try {
+                if (this.isPayingWithMoonPay) {
+                    return new Promise((resolve, reject) => {
+                        // hang this promise entirely to avoid continuing with the buy function
+                    })
+                }
                 const selectedWallet = await WalletSelector.selectWallet(
                     this.logger
                 );
 
                 if (selectedWallet === PaymentProvider.MoonPay) {
+                    this.isPayingWithMoonPay = true;
                     WalletSelector.openPaymentProcessor(
                         selectedWallet,
                         await this.getMoonPayWidgetUrl(0) // TODO: this only works for 721. We need a way to only show moonpay if someone is purchasing and not just connecting
