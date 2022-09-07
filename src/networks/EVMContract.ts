@@ -398,24 +398,45 @@ export class EVMContract extends BaseContract implements IContract {
         let buyTransaction;
 
         if (this.config.contractType === NFTContractType.ERC721) {
+            let gasLimit = 100_000;
+
+            try {
+                const estimatedGasLimit = await contract.estimateGas.buy(
+                    amount
+                );
+
+                gasLimit = estimatedGasLimit.toNumber();
+            } catch {
+                this.logger.log('buy', 'Unable to calculate gas limit', false);
+            }
+
             if (isPolygon) {
-                buyTransaction = await contract.buy(amount, {
-                    gasLimit: 100_000
-                });
+                buyTransaction = await contract.buy(amount, { gasLimit });
             } else {
-                buyTransaction = await contract.buy(amount, {
-                    gasLimit: 100_000
-                });
+                buyTransaction = await contract.buy(amount, { gasLimit });
             }
         } else {
+            let gasLimit = 100_000;
+
+            try {
+                const estimatedGasLimit = await contract.estimateGas.buy(
+                    tokenId,
+                    amount
+                );
+
+                gasLimit = estimatedGasLimit.toNumber();
+            } catch {
+                this.logger.log('buy', 'Unable to calculate gas limit', false);
+            }
+
             if (isPolygon) {
                 buyTransaction = await contract.buy(tokenId, amount, {
-                    gasLimit: 100_000
+                    gasLimit
                 });
             } else {
                 buyTransaction = await contract.buy(tokenId, amount, {
                     value: ethers.utils.parseEther(totalPrice.toString()),
-                    gasLimit: 100_000
+                    gasLimit
                 });
             }
         }
