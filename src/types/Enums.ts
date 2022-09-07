@@ -42,7 +42,3 @@ export enum WalletProvider {
     Metamask = 'Metamask',
     WalletConnect = 'WalletConnect'
 }
-
-export enum PaymentProvider {
-    MoonPay = 'MoonPay'
-}

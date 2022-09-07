@@ -1,4 +1,4 @@
-import { PaymentProvider, WalletProvider } from '../types/Enums';
+import { WalletProvider } from '../types/Enums';
 import { Logger } from '../helpers/Logger';
 
 const walletSelectorStylesheet = `
@@ -167,85 +167,6 @@ const walletSelectorHtml = `
                     <div class="hm-wallet-logo"><img src="https://hypermint.com/client-sdk/resources/walletconnect.svg" alt="WalletConnect"/></div>
                 </div>
             </div>
-
-            <hr class="hm-wallet-divider" />
-
-            <div class="hm-payment-providers">
-                <div class="hm-dialog-header">
-                    <h2 class="hm-dialog-header-title">Buy with Card</h2>
-                </div>
-
-                <div class="hm-payment-provider" data-provider="${PaymentProvider.MoonPay}">
-                    <div class="hm-payment-provider-name">MoonPay</div>
-                    <div class="hm-payment-provider-logo"><img src="https://hypermint.com/client-sdk/resources/moonpay.svg" alt="MoonPay"/></div>
-                </div>
-            </div>
-        </div>
-    </div>
-`;
-
-const moonPayWidgetStyle = `
-    <style>
-        .hm-moonpay-overlay {
-            align-items: center;
-            background: rgba(0,0,0,.5);
-            bottom: 0;
-            color: #FFF;
-            display: flex;
-            font-family: 'Helvetica', 'Arial', sans-serif;
-            font-size: 18px;
-            justify-content: center;
-            left: 0;
-            opacity: 0;
-            position: fixed;
-            right: 0;
-            top: 0;
-            transition: all .15s ease-in;
-            visibility: hidden;
-            z-index: 1000;
-        }
-
-        .hm-moonpay-overlay.hm-moonpay-overlay--active {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        .hm-moonpay-widget {
-            background: #2B2B2B;
-            border-radius: 16px;
-            height: 100%;
-            max-height: 550px;
-            max-width: 440px;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all .2s ease-in;
-            visibility: hidden;
-            width: 100%;
-            z-index: 100;
-        }
-
-        .hm-moonpay-widget.hm-moonpay-widget--active {
-            visibility: visible;
-            opacity: 1;
-            transform: translateY(0px);
-        }
-
-        #hm-moonpay-widget-frame {
-            border: 0;
-            height: 100%;
-            width: 100%;
-            border-radius: 16px;
-        }
-    </style>
-`;
-
-const moonPayWidgetHtml = `
-    <div class="hm-moonpay-overlay">
-        <div class="hm-moonpay-widget">
-            <iframe
-                id="hm-moonpay-widget-frame"
-                title="Buy with MoonPay"
-            />
         </div>
     </div>
 `;
@@ -263,9 +184,7 @@ export class WalletSelector {
         }
     }
 
-    public static selectWallet(
-        logger: Logger
-    ): Promise<WalletProvider | PaymentProvider> {
+    public static selectWallet(logger: Logger): Promise<WalletProvider> {
         return new Promise((resolve, reject) => {
             const overlay = document.getElementById('hm-overlay');
             const dialog = document.getElementById('hm-dialog');
@@ -286,9 +205,6 @@ export class WalletSelector {
             closeButton.onclick = onClose;
 
             const wallets = document.querySelectorAll('.hm-wallet');
-            const paymentProviders = document.querySelectorAll(
-                '.hm-payment-provider'
-            );
 
             for (const wallet of wallets) {
                 wallet.addEventListener('click', (e) => {
@@ -297,18 +213,6 @@ export class WalletSelector {
                     return resolve(
                         wallet.getAttribute('data-wallet') as WalletProvider
                     );
-                });
-            }
-
-            for (const paymentProvider of paymentProviders) {
-                paymentProvider.addEventListener('click', (e) => {
-                    e.stopPropagation();
-
-                    const provider = paymentProvider.getAttribute(
-                        'data-provider'
-                    ) as PaymentProvider;
-
-                    return resolve(provider);
                 });
             }
         });
@@ -322,52 +226,5 @@ export class WalletSelector {
 
         if (overlay) overlay.classList.remove('hm-overlay--active');
         if (dialog) dialog.classList.remove('hm-dialog--active');
-    }
-
-    public static openPaymentProcessor(
-        paymentProvider: PaymentProvider,
-        url: string
-    ) {
-        const overlay = document.getElementById('hm-overlay');
-        const dialog = document.getElementById('hm-dialog');
-
-        if (overlay) overlay.classList.remove('hm-overlay--active');
-        if (dialog) dialog.classList.remove('hm-dialog--active');
-
-        switch (paymentProvider) {
-            default:
-            case PaymentProvider.MoonPay: {
-                document.body.insertAdjacentHTML(
-                    'beforeend',
-                    moonPayWidgetStyle + moonPayWidgetHtml
-                );
-
-                const moonPayOverlay = document.querySelector(
-                    '.hm-moonpay-overlay'
-                );
-                const moonPayWidget =
-                    document.querySelector('.hm-moonpay-widget');
-
-                const iframe = moonPayWidget.querySelector(
-                    '#hm-moonpay-widget-frame'
-                );
-
-                if (iframe) {
-                    iframe.setAttribute('src', url);
-
-                    if (moonPayOverlay) {
-                        moonPayOverlay.classList.add(
-                            'hm-moonpay-overlay--active'
-                        );
-                    }
-
-                    if (moonPayWidget) {
-                        moonPayWidget.classList.add(
-                            'hm-moonpay-widget--active'
-                        );
-                    }
-                }
-            }
-        }
     }
 }
