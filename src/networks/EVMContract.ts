@@ -118,7 +118,7 @@ export class EVMContract extends BaseContract implements IContract {
     }
 
     public async getTestWETH(amount = 0.1) {
-        if (this.isPolygon()) {
+        if (!this.isPolygon()) {
             this.logger.log(
                 'getTestWETH',
                 'Can only get test WETH on Mumbai',
@@ -154,6 +154,18 @@ export class EVMContract extends BaseContract implements IContract {
             return false;
         }
     }
+
+    // public async switchWalletNetwork(chainId: number) {
+    //     const chain = this.chains[chainId];
+
+    //     if (!chain) {
+    //         this.logger.log('switchWalletNetwork', 'Invalid chain', true);
+    //     }
+
+    //     await provider.send('wallet_switchEthereumChain', [
+    //         { chainId: chain.chainId }
+    //     ]);
+    // }
 
     public async connect(wallet?: WalletProvider) {
         if (this.signer) {
