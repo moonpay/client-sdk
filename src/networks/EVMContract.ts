@@ -70,6 +70,19 @@ export class EVMContract extends BaseContract implements IContract {
             blockExplorerUrls: ['https://etherscan.io'],
             nativeCurrency: {
                 name: 'ETH',
+                symbol: 'GoerliETH',
+                decimals: 18
+            }
+        },
+        [NetworkChain.Ethereum]: {
+            chainId: '0x1',
+            chainName: 'Ethereum',
+            rpcUrls: [
+                'https://eth-mainnet.g.alchemy.com/v2/zCcvsCCvVTijakQFV7RPcFG7UuhWnu1A'
+            ],
+            blockExplorerUrls: ['https://etherscan.io'],
+            nativeCurrency: {
+                name: 'ETH',
                 symbol: 'ETH',
                 decimals: 18
             }
