@@ -91,21 +91,24 @@ export class EVMContract extends BaseContract implements IContract {
 
             if (!accounts?.length) throw new Error();
 
-            const address = getAddress(accounts[0]);
-            const balanceHex: string = await this.ethereumProvider.request({
-                method: 'eth_getBalance',
-                params: [address, 'latest']
-            });
+            let contract = await this.getEVMContract();
 
-            const currentChain = this.chains[this.config.networkChain];
+            if (this.isPolygon()) {
+                contract = await EVMHelpers.getWETHContract(
+                    this.config,
+                    this.signer
+                );
+            }
+
+            const address = getAddress(accounts[0]);
+            const balance: string = await contract.balanceOf(address);
 
             return {
                 isConnected: true,
                 address,
                 balance: {
-                    value: balanceHex,
-                    formatted: formatEther(balanceHex),
-                    symbol: currentChain?.nativeCurrency?.symbol
+                    value: balance,
+                    formatted: formatEther(balance)
                 }
             };
         } catch (e) {

@@ -4,6 +4,5 @@ export interface IConnectedWallet {
     balance?: {
         value: string;
         formatted: string;
-        symbol: string;
     };
 }
