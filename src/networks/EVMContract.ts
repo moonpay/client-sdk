@@ -18,7 +18,7 @@ import { Transaction } from '../types/Transaction';
 import { WalletFactory } from '../providers/WalletFactory';
 import { BaseContract } from './BaseContract';
 import { WalletSelector } from '../providers/WalletSelector';
-import { formatEther, getAddress } from 'ethers/lib/utils';
+import { formatEther } from 'ethers/lib/utils';
 import { IConnectedWallet } from '../types/Wallet';
 
 export class EVMContract extends BaseContract implements IContract {
@@ -85,11 +85,7 @@ export class EVMContract extends BaseContract implements IContract {
         try {
             if (!this.ethereumProvider) throw new Error();
 
-            const accounts = await this.ethereumProvider.request({
-                method: 'eth_accounts'
-            });
-
-            if (!accounts?.length) throw new Error();
+            if (!this.signer) throw new Error();
 
             let contract = await this.getEVMContract();
 
@@ -100,7 +96,7 @@ export class EVMContract extends BaseContract implements IContract {
                 );
             }
 
-            const address = getAddress(accounts[0]);
+            const address = await this.signer.getAddress();
             const balance: string = await contract.balanceOf(address);
 
             return {
@@ -158,24 +154,10 @@ export class EVMContract extends BaseContract implements IContract {
         }
     }
 
-    // public async switchWalletNetwork(chainId: number) {
-    //     const chain = this.chains[chainId];
-
-    //     if (!chain) {
-    //         this.logger.log('switchWalletNetwork', 'Invalid chain', true);
-    //     }
-
-    //     await provider.send('wallet_switchEthereumChain', [
-    //         { chainId: chain.chainId }
-    //     ]);
-    // }
-
     public async connect(wallet?: WalletProvider) {
         if (this.signer) {
             return;
         }
-
-        // If purchasing token then we should add the moonpay option to the wallet selector
 
         if (!wallet) {
             try {
