@@ -318,13 +318,15 @@ export class EVMContract extends BaseContract implements IContract {
 
             let balance: ethers.BigNumber;
 
-            if (this.config.networkType === NetworkType.Polygon) {
+            if (this.isPolygon()) {
                 const contract = EVMHelpers.getWETHContract(
                     this.config,
                     this.signer
                 );
 
-                balance = contract.balanceOf(await this.signer.getAddress());
+                balance = await contract.balanceOf(
+                    await this.signer.getAddress()
+                );
             } else {
                 balance = await this.signer.getBalance();
             }
