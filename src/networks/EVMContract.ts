@@ -372,9 +372,7 @@ export class EVMContract extends BaseContract implements IContract {
             this.logger.log('buy', 'Sale closed', true);
         }
 
-        const isPolygon = this.config.networkType === NetworkType.Polygon;
-
-        if (isPolygon) {
+        if (this.isPolygon()) {
             this.logger.log('buy', 'Creating approve transaction...');
 
             const wethContract = EVMHelpers.getWETHContract(
@@ -409,11 +407,10 @@ export class EVMContract extends BaseContract implements IContract {
                 this.logger.log('buy', 'Unable to calculate gas limit', false);
             }
 
-            if (isPolygon) {
-                buyTransaction = await contract.buy(amount, { gasLimit });
-            } else {
-                buyTransaction = await contract.buy(amount, { gasLimit });
-            }
+            buyTransaction = await contract.buy(amount, {
+                value: ethers.utils.parseEther(totalPrice.toString()),
+                gasLimit
+            });
         } else {
             let gasLimit = 100_000;
 
@@ -428,16 +425,10 @@ export class EVMContract extends BaseContract implements IContract {
                 this.logger.log('buy', 'Unable to calculate gas limit', false);
             }
 
-            if (isPolygon) {
-                buyTransaction = await contract.buy(tokenId, amount, {
-                    gasLimit
-                });
-            } else {
-                buyTransaction = await contract.buy(tokenId, amount, {
-                    value: ethers.utils.parseEther(totalPrice.toString()),
-                    gasLimit
-                });
-            }
+            buyTransaction = await contract.buy(tokenId, amount, {
+                value: ethers.utils.parseEther(totalPrice.toString()),
+                gasLimit
+            });
         }
 
         if (wait) {
