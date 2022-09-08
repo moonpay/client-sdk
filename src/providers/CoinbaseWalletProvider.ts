@@ -8,11 +8,9 @@ export default class CoinbaseWalletProvider extends WalletProvider {
             : undefined;
 
         if (window?.ethereum?.providers?.length) {
-            window.ethereum.providers.forEach(async (p) => {
-                if (p.isCoinbaseWallet) {
-                    coinbaseProvider = p;
-                }
-            });
+            coinbaseProvider = window.ethereum.providers.find(
+                (p) => p.isCoinbaseWallet
+            );
         }
 
         if (!coinbaseProvider) {

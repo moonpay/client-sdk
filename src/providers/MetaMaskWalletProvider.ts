@@ -8,11 +8,9 @@ export default class MetaMaskWalletProvider extends WalletProvider {
             : undefined;
 
         if (window?.ethereum?.providers?.length) {
-            window.ethereum.providers.forEach(async (p) => {
-                if (p.isMetaMask) {
-                    metamaskProvider = p;
-                }
-            });
+            metamaskProvider = window.ethereum.providers.find(
+                (p) => p.isMetaMask
+            );
         }
 
         if (!metamaskProvider) {
