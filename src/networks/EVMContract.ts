@@ -117,7 +117,7 @@ export class EVMContract extends BaseContract implements IContract {
     }
 
     public async getTestWETH(amount = 0.1) {
-        if (!this.isPolygon()) {
+        if (!this.isPolygon() || !this.isMumbai()) {
             this.logger.log(
                 'getTestWETH',
                 'Can only get test WETH on Mumbai',
@@ -687,6 +687,10 @@ export class EVMContract extends BaseContract implements IContract {
 
     private isPolygon(): boolean {
         return this.config.networkType === NetworkType.Polygon;
+    }
+
+    private isMumbai(): boolean {
+        return this.config.networkChain === NetworkChain.Mumbai;
     }
 
     private async getEVMContract(): Promise<ethers.Contract> {
