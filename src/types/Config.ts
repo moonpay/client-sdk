@@ -13,7 +13,6 @@ export interface Config {
     networkEnvironment: NetworkEnvironment;
     networkChain: NetworkChain;
     enableLogging?: boolean;
-    onWalletChange?: (isValid: boolean) => void;
     logger?: (
         method: string,
         message: string,

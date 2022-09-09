@@ -1,5 +1,5 @@
 import { IWalletProvider } from './../types/IWalletProvider';
-import { ethers } from 'ethers';
+import { BigNumber, ethers } from 'ethers';
 import { EVMHelpers } from '../helpers/EVMHelpers';
 import { GenericHelpers } from '../helpers/GenericHelpers';
 import { HMAPI } from '../helpers/HMAPI';
@@ -408,24 +408,31 @@ export class EVMContract extends BaseContract implements IContract {
         let buyTransaction;
 
         if (this.config.contractType === NFTContractType.ERC721) {
-            let gasLimit = 100_000;
+            let gasLimit = BigNumber.from(200_000);
 
             try {
                 const estimatedGasLimit = await contract.estimateGas.buy(
                     amount
                 );
 
-                gasLimit = estimatedGasLimit.toNumber();
+                gasLimit = estimatedGasLimit;
             } catch {
                 this.logger.log('buy', 'Unable to calculate gas limit', false);
             }
 
-            buyTransaction = await contract.buy(amount, {
-                value: ethers.utils.parseEther(totalPrice.toString()),
+            const transactionArgs: Partial<ethers.Transaction> = {
                 gasLimit
-            });
+            };
+
+            if (!this.isPolygon()) {
+                transactionArgs.value = ethers.utils.parseEther(
+                    totalPrice.toString()
+                );
+            }
+
+            buyTransaction = await contract.buy(amount, transactionArgs);
         } else {
-            let gasLimit = 100_000;
+            let gasLimit = BigNumber.from(200_000);
 
             try {
                 const estimatedGasLimit = await contract.estimateGas.buy(
@@ -433,15 +440,26 @@ export class EVMContract extends BaseContract implements IContract {
                     amount
                 );
 
-                gasLimit = estimatedGasLimit.toNumber();
+                gasLimit = estimatedGasLimit;
             } catch {
                 this.logger.log('buy', 'Unable to calculate gas limit', false);
             }
 
-            buyTransaction = await contract.buy(tokenId, amount, {
-                value: ethers.utils.parseEther(totalPrice.toString()),
+            const transactionArgs: Partial<ethers.Transaction> = {
                 gasLimit
-            });
+            };
+
+            if (!this.isPolygon()) {
+                transactionArgs.value = ethers.utils.parseEther(
+                    totalPrice.toString()
+                );
+            }
+
+            buyTransaction = await contract.buy(
+                tokenId,
+                amount,
+                transactionArgs
+            );
         }
 
         if (wait) {
@@ -520,9 +538,7 @@ export class EVMContract extends BaseContract implements IContract {
 
         this.logger.log('buyAuthorised', `Using price ${totalPrice}`);
 
-        const isPolygon = this.config.networkType === NetworkType.Polygon;
-
-        if (isPolygon) {
+        if (this.isPolygon()) {
             this.logger.log('buyAuthorised', 'Creating approve transaction...');
 
             const wethContract = EVMHelpers.getWETHContract(
@@ -546,49 +562,78 @@ export class EVMContract extends BaseContract implements IContract {
         const gweiPrice = ethers.utils.parseEther(totalPrice.toString());
 
         if (this.config.contractType === NFTContractType.ERC721) {
-            if (isPolygon) {
-                buyTransaction = await contract.buyAuthorised(
-                    amount,
-                    gweiPrice,
-                    maxPerAddress,
-                    expires,
-                    signature
-                );
-            } else {
-                buyTransaction = await contract.buyAuthorised(
-                    amount,
-                    gweiPrice,
-                    maxPerAddress,
-                    expires,
-                    signature,
-                    {
-                        value: ethers.utils.parseEther(totalPrice.toString())
-                    }
+            let gasLimit = BigNumber.from(200_000);
+
+            try {
+                const estimatedGasLimit =
+                    await contract.estimateGas.buyAuthorised(
+                        amount,
+                        gweiPrice,
+                        maxPerAddress,
+                        expires,
+                        signature
+                    );
+
+                gasLimit = estimatedGasLimit;
+            } catch {
+                this.logger.log('buy', 'Unable to calculate gas limit', false);
+            }
+
+            const transactionArgs: Partial<ethers.Transaction> = {
+                gasLimit
+            };
+
+            if (!this.isPolygon()) {
+                transactionArgs.value = ethers.utils.parseEther(
+                    totalPrice.toString()
                 );
             }
+
+            buyTransaction = await contract.buyAuthorised(
+                amount,
+                gweiPrice,
+                maxPerAddress,
+                expires,
+                signature,
+                transactionArgs
+            );
         } else {
-            if (isPolygon) {
-                buyTransaction = await contract.buyAuthorised(
-                    tokenId,
-                    amount,
-                    gweiPrice,
-                    maxPerAddress,
-                    expires,
-                    signature
-                );
-            } else {
-                buyTransaction = await contract.buyAuthorised(
-                    tokenId,
-                    amount,
-                    gweiPrice,
-                    maxPerAddress,
-                    expires,
-                    signature,
-                    {
-                        value: ethers.utils.parseEther(totalPrice.toString())
-                    }
+            let gasLimit = BigNumber.from(200_000);
+
+            try {
+                const estimatedGasLimit =
+                    await contract.estimateGas.buyAuthorised(
+                        amount,
+                        gweiPrice,
+                        maxPerAddress,
+                        expires,
+                        signature
+                    );
+
+                gasLimit = estimatedGasLimit;
+            } catch {
+                this.logger.log('buy', 'Unable to calculate gas limit', false);
+            }
+
+            const transactionArgs: Partial<ethers.Transaction> = {
+                gasLimit
+            };
+
+            if (!this.isPolygon()) {
+                transactionArgs.value = ethers.utils.parseEther(
+                    totalPrice.toString()
                 );
             }
+
+            buyTransaction = await contract.buyAuthorised(
+                tokenId,
+                amount,
+                gweiPrice,
+                maxPerAddress,
+                expires,
+                signature,
+                transactionArgs
+            );
         }
 
         if (wait) {
