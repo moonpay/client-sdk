@@ -1053,23 +1053,13 @@ export const ERC1155 = [
         inputs: [
             {
                 internalType: 'string',
-                name: '__name',
+                name: '_name',
                 type: 'string'
             },
             {
                 internalType: 'string',
-                name: '__symbol',
+                name: '_symbol',
                 type: 'string'
-            },
-            {
-                internalType: 'uint256',
-                name: '_price',
-                type: 'uint256'
-            },
-            {
-                internalType: 'uint256',
-                name: '_totalSupply',
-                type: 'uint256'
             },
             {
                 internalType: 'string',
@@ -1087,48 +1077,105 @@ export const ERC1155 = [
                 type: 'bool'
             },
             {
-                internalType: 'address',
-                name: '_customerAddress',
-                type: 'address'
-            },
-            {
-                internalType: 'address',
-                name: '_presaleAddress',
-                type: 'address'
-            },
-            {
-                internalType: 'uint256',
-                name: '_maxPerAddress',
-                type: 'uint256'
+                components: [
+                    {
+                        internalType: 'address',
+                        name: 'customerAddress',
+                        type: 'address'
+                    },
+                    {
+                        internalType: 'address',
+                        name: 'collectionOwnerAddress',
+                        type: 'address'
+                    },
+                    {
+                        internalType: 'address',
+                        name: 'authorisationAddress',
+                        type: 'address'
+                    },
+                    {
+                        internalType: 'address',
+                        name: 'purchaseTokenAddress',
+                        type: 'address'
+                    },
+                    {
+                        internalType: 'address',
+                        name: 'managerPrimaryRoyaltyAddress',
+                        type: 'address'
+                    },
+                    {
+                        internalType: 'address',
+                        name: 'customerPrimaryRoyaltyAddress',
+                        type: 'address'
+                    },
+                    {
+                        internalType: 'address',
+                        name: 'secondaryRoyaltyAddress',
+                        type: 'address'
+                    }
+                ],
+                internalType: 'struct HyperMintERC1155.Addresses',
+                name: '_addresses',
+                type: 'tuple'
             }
         ],
         stateMutability: 'nonpayable',
         type: 'constructor'
     },
     {
-        anonymous: false,
-        inputs: [
-            {
-                indexed: true,
-                internalType: 'address',
-                name: 'owner',
-                type: 'address'
-            },
-            {
-                indexed: true,
-                internalType: 'address',
-                name: 'approved',
-                type: 'address'
-            },
-            {
-                indexed: true,
-                internalType: 'uint256',
-                name: 'tokenId',
-                type: 'uint256'
-            }
-        ],
-        name: 'Approval',
-        type: 'event'
+        inputs: [],
+        name: 'ArrayLengthMismatch',
+        type: 'error'
+    },
+    {
+        inputs: [],
+        name: 'BuyDisabled',
+        type: 'error'
+    },
+    {
+        inputs: [],
+        name: 'ContractCallBlocked',
+        type: 'error'
+    },
+    {
+        inputs: [],
+        name: 'InsufficientPaymentValue',
+        type: 'error'
+    },
+    {
+        inputs: [],
+        name: 'MaxPerTransactionsExceeded',
+        type: 'error'
+    },
+    {
+        inputs: [],
+        name: 'MaxSupplyExceeded',
+        type: 'error'
+    },
+    {
+        inputs: [],
+        name: 'NewSupplyTooLow',
+        type: 'error'
+    },
+    {
+        inputs: [],
+        name: 'NotAuthorised',
+        type: 'error'
+    },
+    {
+        inputs: [],
+        name: 'PublicSaleClosed',
+        type: 'error'
+    },
+    {
+        inputs: [],
+        name: 'SaleClosed',
+        type: 'error'
+    },
+    {
+        inputs: [],
+        name: 'SignatureExpired',
+        type: 'error'
     },
     {
         anonymous: false,
@@ -1136,7 +1183,7 @@ export const ERC1155 = [
             {
                 indexed: true,
                 internalType: 'address',
-                name: 'owner',
+                name: 'account',
                 type: 'address'
             },
             {
@@ -1161,22 +1208,47 @@ export const ERC1155 = [
             {
                 indexed: true,
                 internalType: 'address',
-                name: 'previousOwner',
+                name: 'previousCollectionOwner',
                 type: 'address'
             },
             {
                 indexed: true,
                 internalType: 'address',
-                name: 'newOwner',
+                name: 'newCollectionOwner',
                 type: 'address'
             }
         ],
-        name: 'OwnershipTransferred',
+        name: 'CollectionOwnershipTransferred',
         type: 'event'
     },
     {
         anonymous: false,
         inputs: [
+            {
+                indexed: true,
+                internalType: 'address',
+                name: 'previousContractManager',
+                type: 'address'
+            },
+            {
+                indexed: true,
+                internalType: 'address',
+                name: 'newContractManager',
+                type: 'address'
+            }
+        ],
+        name: 'ContractOwnershipTransferred',
+        type: 'event'
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: true,
+                internalType: 'address',
+                name: 'operator',
+                type: 'address'
+            },
             {
                 indexed: true,
                 internalType: 'address',
@@ -1190,14 +1262,142 @@ export const ERC1155 = [
                 type: 'address'
             },
             {
+                indexed: false,
+                internalType: 'uint256[]',
+                name: 'ids',
+                type: 'uint256[]'
+            },
+            {
+                indexed: false,
+                internalType: 'uint256[]',
+                name: 'values',
+                type: 'uint256[]'
+            }
+        ],
+        name: 'TransferBatch',
+        type: 'event'
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
                 indexed: true,
+                internalType: 'address',
+                name: 'operator',
+                type: 'address'
+            },
+            {
+                indexed: true,
+                internalType: 'address',
+                name: 'from',
+                type: 'address'
+            },
+            {
+                indexed: true,
+                internalType: 'address',
+                name: 'to',
+                type: 'address'
+            },
+            {
+                indexed: false,
                 internalType: 'uint256',
-                name: 'tokenId',
+                name: 'id',
+                type: 'uint256'
+            },
+            {
+                indexed: false,
+                internalType: 'uint256',
+                name: 'value',
                 type: 'uint256'
             }
         ],
-        name: 'Transfer',
+        name: 'TransferSingle',
         type: 'event'
+    },
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: false,
+                internalType: 'string',
+                name: 'value',
+                type: 'string'
+            },
+            {
+                indexed: true,
+                internalType: 'uint256',
+                name: 'id',
+                type: 'uint256'
+            }
+        ],
+        name: 'URI',
+        type: 'event'
+    },
+    {
+        inputs: [
+            {
+                internalType: 'uint256[]',
+                name: '_newSupplies',
+                type: 'uint256[]'
+            },
+            {
+                internalType: 'uint256[]',
+                name: '_newPrices',
+                type: 'uint256[]'
+            },
+            {
+                internalType: 'uint256[]',
+                name: '_maxPerTransactions',
+                type: 'uint256[]'
+            }
+        ],
+        name: 'addTokens',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function'
+    },
+    {
+        inputs: [],
+        name: 'addresses',
+        outputs: [
+            {
+                internalType: 'address',
+                name: 'customerAddress',
+                type: 'address'
+            },
+            {
+                internalType: 'address',
+                name: 'collectionOwnerAddress',
+                type: 'address'
+            },
+            {
+                internalType: 'address',
+                name: 'authorisationAddress',
+                type: 'address'
+            },
+            {
+                internalType: 'address',
+                name: 'purchaseTokenAddress',
+                type: 'address'
+            },
+            {
+                internalType: 'address',
+                name: 'managerPrimaryRoyaltyAddress',
+                type: 'address'
+            },
+            {
+                internalType: 'address',
+                name: 'customerPrimaryRoyaltyAddress',
+                type: 'address'
+            },
+            {
+                internalType: 'address',
+                name: 'secondaryRoyaltyAddress',
+                type: 'address'
+            }
+        ],
+        stateMutability: 'view',
+        type: 'function'
     },
     {
         inputs: [],
@@ -1216,26 +1416,13 @@ export const ERC1155 = [
         inputs: [
             {
                 internalType: 'address',
-                name: 'to',
+                name: 'account',
                 type: 'address'
             },
             {
                 internalType: 'uint256',
-                name: 'tokenId',
+                name: 'id',
                 type: 'uint256'
-            }
-        ],
-        name: 'approve',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function'
-    },
-    {
-        inputs: [
-            {
-                internalType: 'address',
-                name: 'owner',
-                type: 'address'
             }
         ],
         name: 'balanceOf',
@@ -1252,8 +1439,42 @@ export const ERC1155 = [
     {
         inputs: [
             {
+                internalType: 'address[]',
+                name: 'accounts',
+                type: 'address[]'
+            },
+            {
+                internalType: 'uint256[]',
+                name: 'ids',
+                type: 'uint256[]'
+            }
+        ],
+        name: 'balanceOfBatch',
+        outputs: [
+            {
+                internalType: 'uint256[]',
+                name: '',
+                type: 'uint256[]'
+            }
+        ],
+        stateMutability: 'view',
+        type: 'function'
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'account',
+                type: 'address'
+            },
+            {
                 internalType: 'uint256',
-                name: 'tokenId',
+                name: 'id',
+                type: 'uint256'
+            },
+            {
+                internalType: 'uint256',
+                name: 'value',
                 type: 'uint256'
             }
         ],
@@ -1264,6 +1485,34 @@ export const ERC1155 = [
     },
     {
         inputs: [
+            {
+                internalType: 'address',
+                name: 'account',
+                type: 'address'
+            },
+            {
+                internalType: 'uint256[]',
+                name: 'ids',
+                type: 'uint256[]'
+            },
+            {
+                internalType: 'uint256[]',
+                name: 'values',
+                type: 'uint256[]'
+            }
+        ],
+        name: 'burnBatch',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function'
+    },
+    {
+        inputs: [
+            {
+                internalType: 'uint256',
+                name: '_id',
+                type: 'uint256'
+            },
             {
                 internalType: 'uint256',
                 name: '_amount',
@@ -1279,12 +1528,22 @@ export const ERC1155 = [
         inputs: [
             {
                 internalType: 'uint256',
+                name: '_id',
+                type: 'uint256'
+            },
+            {
+                internalType: 'uint256',
                 name: '_amount',
                 type: 'uint256'
             },
             {
                 internalType: 'uint256',
-                name: '_price',
+                name: '_totalPrice',
+                type: 'uint256'
+            },
+            {
+                internalType: 'uint256',
+                name: '_maxPerAddress',
                 type: 'uint256'
             },
             {
@@ -1305,6 +1564,32 @@ export const ERC1155 = [
     },
     {
         inputs: [],
+        name: 'collectionOwner',
+        outputs: [
+            {
+                internalType: 'address',
+                name: '',
+                type: 'address'
+            }
+        ],
+        stateMutability: 'view',
+        type: 'function'
+    },
+    {
+        inputs: [],
+        name: 'contractManager',
+        outputs: [
+            {
+                internalType: 'address',
+                name: '',
+                type: 'address'
+            }
+        ],
+        stateMutability: 'view',
+        type: 'function'
+    },
+    {
+        inputs: [],
         name: 'contractURI',
         outputs: [
             {
@@ -1318,65 +1603,33 @@ export const ERC1155 = [
     },
     {
         inputs: [],
-        name: 'customerAddress',
-        outputs: [
-            {
-                internalType: 'address',
-                name: '',
-                type: 'address'
-            }
-        ],
-        stateMutability: 'view',
-        type: 'function'
-    },
-    {
-        inputs: [
-            {
-                internalType: 'uint256',
-                name: 'tokenId',
-                type: 'uint256'
-            }
-        ],
-        name: 'getApproved',
-        outputs: [
-            {
-                internalType: 'address',
-                name: '',
-                type: 'address'
-            }
-        ],
-        stateMutability: 'view',
-        type: 'function'
-    },
-    {
-        inputs: [],
         name: 'getTokenInfo',
         outputs: [
             {
                 components: [
                     {
-                        internalType: 'uint256',
-                        name: 'price',
-                        type: 'uint256'
+                        internalType: 'uint256[]',
+                        name: 'prices',
+                        type: 'uint256[]'
                     },
                     {
-                        internalType: 'uint256',
-                        name: 'supply',
-                        type: 'uint256'
+                        internalType: 'uint256[]',
+                        name: 'supplies',
+                        type: 'uint256[]'
                     },
                     {
-                        internalType: 'uint256',
-                        name: 'totalSupply',
-                        type: 'uint256'
+                        internalType: 'uint256[]',
+                        name: 'totalSupplies',
+                        type: 'uint256[]'
                     },
                     {
-                        internalType: 'uint256',
-                        name: 'maxPerAddress',
-                        type: 'uint256'
+                        internalType: 'uint256[]',
+                        name: 'maxPerTransactions',
+                        type: 'uint256[]'
                     }
                 ],
-                internalType: 'struct HyperMintERC721.TokenInfo',
-                name: '',
+                internalType: 'struct HyperMintERC1155.TokenInfo',
+                name: 'tokenInfo',
                 type: 'tuple'
             }
         ],
@@ -1387,7 +1640,7 @@ export const ERC1155 = [
         inputs: [
             {
                 internalType: 'address',
-                name: 'owner',
+                name: 'account',
                 type: 'address'
             },
             {
@@ -1408,8 +1661,43 @@ export const ERC1155 = [
         type: 'function'
     },
     {
-        inputs: [],
-        name: 'maxPerAddress',
+        inputs: [
+            {
+                internalType: 'bytes32[]',
+                name: 'proof',
+                type: 'bytes32[]'
+            },
+            {
+                internalType: 'bytes32',
+                name: 'root',
+                type: 'bytes32'
+            },
+            {
+                internalType: 'bytes32',
+                name: 'leaf',
+                type: 'bytes32'
+            }
+        ],
+        name: 'isValid',
+        outputs: [
+            {
+                internalType: 'bool',
+                name: '',
+                type: 'bool'
+            }
+        ],
+        stateMutability: 'pure',
+        type: 'function'
+    },
+    {
+        inputs: [
+            {
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256'
+            }
+        ],
+        name: 'maxPerTransactions',
         outputs: [
             {
                 internalType: 'uint256',
@@ -1424,13 +1712,18 @@ export const ERC1155 = [
         inputs: [
             {
                 internalType: 'address[]',
-                name: '_accounts',
+                name: '_to',
                 type: 'address[]'
             },
             {
-                internalType: 'uint256[]',
+                internalType: 'uint256[][]',
+                name: '_ids',
+                type: 'uint256[][]'
+            },
+            {
+                internalType: 'uint256[][]',
                 name: '_amounts',
-                type: 'uint256[]'
+                type: 'uint256[][]'
             }
         ],
         name: 'mintBatch',
@@ -1468,50 +1761,11 @@ export const ERC1155 = [
         inputs: [
             {
                 internalType: 'uint256',
-                name: 'tokenId',
-                type: 'uint256'
-            }
-        ],
-        name: 'ownerOf',
-        outputs: [
-            {
-                internalType: 'address',
-                name: '',
-                type: 'address'
-            }
-        ],
-        stateMutability: 'view',
-        type: 'function'
-    },
-    {
-        inputs: [],
-        name: 'presaleAddress',
-        outputs: [
-            {
-                internalType: 'address',
-                name: '',
-                type: 'address'
-            }
-        ],
-        stateMutability: 'view',
-        type: 'function'
-    },
-    {
-        inputs: [],
-        name: 'presaleDate',
-        outputs: [
-            {
-                internalType: 'uint256',
                 name: '',
                 type: 'uint256'
             }
         ],
-        stateMutability: 'view',
-        type: 'function'
-    },
-    {
-        inputs: [],
-        name: 'price',
+        name: 'prices',
         outputs: [
             {
                 internalType: 'uint256',
@@ -1527,22 +1781,9 @@ export const ERC1155 = [
         name: 'primaryRoyaltyFee',
         outputs: [
             {
-                internalType: 'uint96',
+                internalType: 'uint256',
                 name: '',
-                type: 'uint96'
-            }
-        ],
-        stateMutability: 'view',
-        type: 'function'
-    },
-    {
-        inputs: [],
-        name: 'primaryRoyaltyReceiver',
-        outputs: [
-            {
-                internalType: 'address',
-                name: '',
-                type: 'address'
+                type: 'uint256'
             }
         ],
         stateMutability: 'view',
@@ -1563,20 +1804,7 @@ export const ERC1155 = [
     },
     {
         inputs: [],
-        name: 'purchaseTokenAddress',
-        outputs: [
-            {
-                internalType: 'address',
-                name: '',
-                type: 'address'
-            }
-        ],
-        stateMutability: 'view',
-        type: 'function'
-    },
-    {
-        inputs: [],
-        name: 'renounceOwnership',
+        name: 'renounceContractOwnership',
         outputs: [],
         stateMutability: 'nonpayable',
         type: 'function'
@@ -1598,12 +1826,12 @@ export const ERC1155 = [
         outputs: [
             {
                 internalType: 'address',
-                name: '',
+                name: 'royaltyAddress',
                 type: 'address'
             },
             {
                 internalType: 'uint256',
-                name: '',
+                name: 'royaltyAmount',
                 type: 'uint256'
             }
         ],
@@ -1623,12 +1851,22 @@ export const ERC1155 = [
                 type: 'address'
             },
             {
-                internalType: 'uint256',
-                name: 'tokenId',
-                type: 'uint256'
+                internalType: 'uint256[]',
+                name: 'ids',
+                type: 'uint256[]'
+            },
+            {
+                internalType: 'uint256[]',
+                name: 'amounts',
+                type: 'uint256[]'
+            },
+            {
+                internalType: 'bytes',
+                name: 'data',
+                type: 'bytes'
             }
         ],
-        name: 'safeTransferFrom',
+        name: 'safeBatchTransferFrom',
         outputs: [],
         stateMutability: 'nonpayable',
         type: 'function'
@@ -1647,12 +1885,17 @@ export const ERC1155 = [
             },
             {
                 internalType: 'uint256',
-                name: 'tokenId',
+                name: 'id',
+                type: 'uint256'
+            },
+            {
+                internalType: 'uint256',
+                name: 'amount',
                 type: 'uint256'
             },
             {
                 internalType: 'bytes',
-                name: '_data',
+                name: 'data',
                 type: 'bytes'
             }
         ],
@@ -1679,25 +1922,62 @@ export const ERC1155 = [
         name: 'secondaryRoyaltyFee',
         outputs: [
             {
-                internalType: 'uint96',
+                internalType: 'uint256',
                 name: '',
-                type: 'uint96'
+                type: 'uint256'
             }
         ],
         stateMutability: 'view',
         type: 'function'
     },
     {
-        inputs: [],
-        name: 'secondaryRoyaltyReceiver',
-        outputs: [
+        inputs: [
             {
-                internalType: 'address',
-                name: '',
-                type: 'address'
+                components: [
+                    {
+                        internalType: 'address',
+                        name: 'customerAddress',
+                        type: 'address'
+                    },
+                    {
+                        internalType: 'address',
+                        name: 'collectionOwnerAddress',
+                        type: 'address'
+                    },
+                    {
+                        internalType: 'address',
+                        name: 'authorisationAddress',
+                        type: 'address'
+                    },
+                    {
+                        internalType: 'address',
+                        name: 'purchaseTokenAddress',
+                        type: 'address'
+                    },
+                    {
+                        internalType: 'address',
+                        name: 'managerPrimaryRoyaltyAddress',
+                        type: 'address'
+                    },
+                    {
+                        internalType: 'address',
+                        name: 'customerPrimaryRoyaltyAddress',
+                        type: 'address'
+                    },
+                    {
+                        internalType: 'address',
+                        name: 'secondaryRoyaltyAddress',
+                        type: 'address'
+                    }
+                ],
+                internalType: 'struct HyperMintERC1155.Addresses',
+                name: '_addresses',
+                type: 'tuple'
             }
         ],
-        stateMutability: 'view',
+        name: 'setAddresses',
+        outputs: [],
+        stateMutability: 'nonpayable',
         type: 'function'
     },
     {
@@ -1733,29 +2013,6 @@ export const ERC1155 = [
     },
     {
         inputs: [
-            {
-                internalType: 'address',
-                name: '_customerAddress',
-                type: 'address'
-            },
-            {
-                internalType: 'address',
-                name: '_presaleAddress',
-                type: 'address'
-            }
-        ],
-        name: 'setCustomerAddresses',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function'
-    },
-    {
-        inputs: [
-            {
-                internalType: 'uint256',
-                name: '_presale',
-                type: 'uint256'
-            },
             {
                 internalType: 'uint256',
                 name: '_publicSale',
@@ -1811,37 +2068,14 @@ export const ERC1155 = [
     {
         inputs: [
             {
-                internalType: 'address',
-                name: '_purchaseToken',
-                type: 'address'
-            }
-        ],
-        name: 'setPurchaseToken',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function'
-    },
-    {
-        inputs: [
-            {
-                internalType: 'address',
-                name: '_primaryReceiver',
-                type: 'address'
-            },
-            {
-                internalType: 'address',
-                name: '_secondaryReceiver',
-                type: 'address'
-            },
-            {
-                internalType: 'uint96',
+                internalType: 'uint256',
                 name: '_primaryFee',
-                type: 'uint96'
+                type: 'uint256'
             },
             {
-                internalType: 'uint96',
+                internalType: 'uint256',
                 name: '_secondaryFee',
-                type: 'uint96'
+                type: 'uint256'
             }
         ],
         name: 'setRoyalty',
@@ -1851,6 +2085,11 @@ export const ERC1155 = [
     },
     {
         inputs: [
+            {
+                internalType: 'uint256',
+                name: '_id',
+                type: 'uint256'
+            },
             {
                 internalType: 'uint256',
                 name: '_price',
@@ -1873,8 +2112,14 @@ export const ERC1155 = [
         type: 'function'
     },
     {
-        inputs: [],
-        name: 'supply',
+        inputs: [
+            {
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256'
+            }
+        ],
+        name: 'supplies',
         outputs: [
             {
                 internalType: 'uint256',
@@ -1897,7 +2142,7 @@ export const ERC1155 = [
         outputs: [
             {
                 internalType: 'bool',
-                name: '',
+                name: 'result',
                 type: 'bool'
             }
         ],
@@ -1918,13 +2163,19 @@ export const ERC1155 = [
         type: 'function'
     },
     {
-        inputs: [],
-        name: 'tokenMetadataURI',
+        inputs: [
+            {
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256'
+            }
+        ],
+        name: 'totalSupplies',
         outputs: [
             {
-                internalType: 'string',
+                internalType: 'uint256',
                 name: '',
-                type: 'string'
+                type: 'uint256'
             }
         ],
         stateMutability: 'view',
@@ -1938,28 +2189,41 @@ export const ERC1155 = [
                 type: 'uint256'
             }
         ],
-        name: 'tokenURI',
+        name: 'totalSupply',
         outputs: [
             {
-                internalType: 'string',
-                name: '',
-                type: 'string'
+                internalType: 'uint256',
+                name: '_totalSupply',
+                type: 'uint256'
             }
         ],
         stateMutability: 'view',
         type: 'function'
     },
     {
-        inputs: [],
-        name: 'totalSupply',
-        outputs: [
+        inputs: [
             {
-                internalType: 'uint256',
-                name: '',
-                type: 'uint256'
+                internalType: 'address',
+                name: 'newCollectionOwner',
+                type: 'address'
             }
         ],
-        stateMutability: 'view',
+        name: 'transferCollectionOwnership',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function'
+    },
+    {
+        inputs: [
+            {
+                internalType: 'address',
+                name: 'newContractManager',
+                type: 'address'
+            }
+        ],
+        name: 'transferContractManagerOwnership',
+        outputs: [],
+        stateMutability: 'nonpayable',
         type: 'function'
     },
     {
@@ -1972,37 +2236,20 @@ export const ERC1155 = [
     {
         inputs: [
             {
-                internalType: 'address',
-                name: 'from',
-                type: 'address'
-            },
-            {
-                internalType: 'address',
-                name: 'to',
-                type: 'address'
-            },
-            {
                 internalType: 'uint256',
-                name: 'tokenId',
+                name: '',
                 type: 'uint256'
             }
         ],
-        name: 'transferFrom',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function'
-    },
-    {
-        inputs: [
+        name: 'uri',
+        outputs: [
             {
-                internalType: 'address',
-                name: 'newOwner',
-                type: 'address'
+                internalType: 'string',
+                name: '',
+                type: 'string'
             }
         ],
-        name: 'transferOwnership',
-        outputs: [],
-        stateMutability: 'nonpayable',
+        stateMutability: 'view',
         type: 'function'
     },
     {

@@ -1,13 +1,14 @@
 import { ContractInformation } from './ContractInformation';
-import { TransactionStatus } from './Enums';
+import { TransactionStatus, WalletProvider } from './Enums';
 import { Metadata } from './Metadata';
 import { TokenAllocation } from './TokenAllocation';
 import { TokenInformation } from './TokenInformation';
 import { Transaction } from './Transaction';
+import { IConnectedWallet } from './Wallet';
 
 export interface IContract {
-    connect: () => void;
-
+    connect: (wallet?: WalletProvider, purchasingTokenId?: number) => void;
+    getConnectedWallet: () => Promise<IConnectedWallet>;
     getContractInformation: () => Promise<ContractInformation>;
     getTokenBalance: () => Promise<number>;
     getTokens: () => Promise<TokenInformation[]>;
