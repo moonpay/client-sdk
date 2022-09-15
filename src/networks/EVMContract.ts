@@ -104,7 +104,10 @@ export class EVMContract extends BaseContract implements IContract {
             }
 
             const address = await this.signer.getAddress();
-            const balance: string = await contract.balanceOf(address);
+
+            const balance: string = this.isPolygon()
+                ? await contract.balanceOf(address)
+                : await this.signer.getBalance();
 
             return {
                 isConnected: true,
