@@ -404,8 +404,9 @@ export class EVMContract extends BaseContract implements IContract {
 
         let buyTransaction;
 
-        if (this.config.contractType === NFTContractType.ERC721) {
-            let gasLimit = BigNumber.from(200_000);
+        if (this.config.contractType === NFTContractType.ERC721) 
+            // min (96_457) - max (137_674) - avg (110_732)
+            let gasLimit = BigNumber.from(150_000); // avg * 1.3
 
             const transactionArgs: Partial<ethers.Transaction> = {};
 
@@ -430,7 +431,8 @@ export class EVMContract extends BaseContract implements IContract {
 
             buyTransaction = await contract.buy(amount, transactionArgs);
         } else {
-            let gasLimit = BigNumber.from(200_000);
+            // min (77_900) - max (142_908) - avg (99_954)
+            let gasLimit = BigNumber.from(130_000); // avg * 1.3
 
             const transactionArgs: Partial<ethers.Transaction> = {};
 
@@ -561,7 +563,8 @@ export class EVMContract extends BaseContract implements IContract {
         const gweiPrice = ethers.utils.parseEther(totalPrice.toString());
 
         if (this.config.contractType === NFTContractType.ERC721) {
-            let gasLimit = BigNumber.from(200_000);
+            // min (94_663) - max (111_908) - avg (104_223)
+            let gasLimit = BigNumber.from(135_000); // avg * 1.3
 
             const transactionArgs: Partial<ethers.Transaction> = {};
 
@@ -598,7 +601,8 @@ export class EVMContract extends BaseContract implements IContract {
                 transactionArgs
             );
         } else {
-            let gasLimit = BigNumber.from(200_000);
+            // min (80_662) - max (108_110) - avg (89_818)
+            let gasLimit = BigNumber.from(120_000); // avg * 1.3
 
             const transactionArgs: Partial<ethers.Transaction> = {};
 
