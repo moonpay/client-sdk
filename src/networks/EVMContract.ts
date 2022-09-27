@@ -1,19 +1,25 @@
-import { IWalletProvider } from "./../types/IWalletProvider";
-import { BigNumber, ethers } from "ethers";
-import { EVMHelpers } from "../helpers/EVMHelpers";
-import { GenericHelpers } from "../helpers/GenericHelpers";
-import { HMAPI } from "../helpers/HMAPI";
-import { Config } from "../types/Config";
-import { ContractInformation } from "../types/ContractInformation";
-import { NetworkChain, NetworkType, NFTContractType, TransactionStatus, WalletProvider } from "../types/Enums";
-import { ERC1155, ERC721 } from "../types/EVMABIs";
-import { IContract } from "../types/IContract";
-import { Transaction } from "../types/Transaction";
-import { WalletFactory } from "../providers/WalletFactory";
-import { BaseContract } from "./BaseContract";
-import { WalletSelector } from "../providers/WalletSelector";
-import { formatEther } from "ethers/lib/utils";
-import { IConnectedWallet } from "../types/Wallet";
+import { IWalletProvider } from './../types/IWalletProvider';
+import { BigNumber, ethers } from 'ethers';
+import { EVMHelpers } from '../helpers/EVMHelpers';
+import { GenericHelpers } from '../helpers/GenericHelpers';
+import { HMAPI } from '../helpers/HMAPI';
+import { Config } from '../types/Config';
+import { ContractInformation } from '../types/ContractInformation';
+import {
+    NetworkChain,
+    NetworkType,
+    NFTContractType,
+    TransactionStatus,
+    WalletProvider
+} from '../types/Enums';
+import { ERC1155, ERC721 } from '../types/EVMABIs';
+import { IContract } from '../types/IContractEvm';
+import { Transaction } from '../types/Transaction';
+import { WalletFactory } from '../providers/WalletFactory';
+import { BaseContract } from './BaseContract';
+import { WalletSelector } from '../providers/WalletSelector';
+import { formatEther } from 'ethers/lib/utils';
+import { IConnectedWallet } from '../types/Wallet';
 
 export class EVMContract extends BaseContract implements IContract {
     private signer: ethers.Signer;
@@ -584,7 +590,11 @@ export class EVMContract extends BaseContract implements IContract {
 
                 gasLimit = estimatedGasLimit;
             } catch {
-                this.logger.log('buyAuthorised', 'Unable to calculate gas limit', false);
+                this.logger.log(
+                    'buyAuthorised',
+                    'Unable to calculate gas limit',
+                    false
+                );
             }
 
             transactionArgs.gasLimit = gasLimit;
@@ -622,7 +632,11 @@ export class EVMContract extends BaseContract implements IContract {
 
                 gasLimit = estimatedGasLimit;
             } catch {
-                this.logger.log('buyAuthorised', 'Unable to calculate gas limit', false);
+                this.logger.log(
+                    'buyAuthorised',
+                    'Unable to calculate gas limit',
+                    false
+                );
             }
 
             transactionArgs.gasLimit = gasLimit;
@@ -734,6 +748,28 @@ export class EVMContract extends BaseContract implements IContract {
         );
 
         return status;
+    }
+
+    public async burn(
+        tokenId: number,
+        amount: number = 1
+    ): Promise<Transaction> {
+        try {
+            const contract = await this.getEVMContract();
+            let burnTransaction: Transaction;
+            if (this.config.contractType === NFTContractType.ERC721) {
+                this.logger.log('burn', 'starting ERC 721 token burn', false);
+                burnTransaction = await contract.burn(tokenId);
+                return burnTransaction;
+            } else {
+                let address = await this.signer.getAddress();
+                this.logger.log('burn', 'starting ERC 1155 token burn', false);
+                burnTransaction = await contract.burn(address, tokenId, amount);
+                return burnTransaction;
+            }
+        } catch (error) {
+            this.logger.log('burn', error.message, true);
+        }
     }
 
     private isPolygon(): boolean {

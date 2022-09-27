@@ -9,7 +9,7 @@ import { Buffer } from 'buffer';
 import { HMAPI } from '../helpers/HMAPI';
 import { Config } from '../types/Config';
 import { NetworkEnvironment, TransactionStatus } from '../types/Enums';
-import { IContract } from '../types/IContract';
+import { IContract } from '../types/IContractSolana';
 import { Transaction } from '../types/Transaction';
 import { BaseContract } from './BaseContract';
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Client SDK Test - HyperMint </title>
@@ -12,170 +13,194 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 
   <style>
-      body {
-          background: #2E3440;
-          color: #ECEFF4;
-          font-size: 1rem;
-          font-weight: 400;
-          font-family: 'Roboto', sans-serif;
-      }
+    body {
+      background: #2E3440;
+      color: #ECEFF4;
+      font-size: 1rem;
+      font-weight: 400;
+      font-family: 'Roboto', sans-serif;
+    }
 
-      button {
-          background: #6e6bff;
-          color: white;
-          border-radius: 4px;
-          padding: 8px 16px;
-          margin: 16px;
-          outline: none;
-          border: none;
-          font-size: 14px;
-      }
+    button {
+      background: #6e6bff;
+      color: white;
+      border-radius: 4px;
+      padding: 8px 16px;
+      margin: 16px;
+      outline: none;
+      border: none;
+      font-size: 14px;
+    }
 
-      h1 {
-          font-size: 22px;
-          padding: 16px;
-          margin: 0;
-      }
+    h1 {
+      font-size: 22px;
+      padding: 16px;
+      margin: 0;
+    }
 
-      #logs {
-          margin: 0 16px;
-          padding: 16px;
-          background: #3B4252;
-      }
+    #logs {
+      margin: 0 16px;
+      padding: 16px;
+      background: #3B4252;
+    }
 
-      .log {
-          padding-bottom: 8px;
-      }
+    .log {
+      padding-bottom: 8px;
+    }
 
-      .log.error {
-          color: red;
-      }
+    .log.error {
+      color: red;
+    }
 
-      .section {
-          border: 1px solid #4C566A;
-          padding: 16px;
-          margin: 32px 16px;
-          border-radius: 4px;
-          position: relative;
-      }
+    .section {
+      border: 1px solid #4C566A;
+      padding: 16px;
+      margin: 32px 16px;
+      border-radius: 4px;
+      position: relative;
+    }
 
-      .section h2 {
-          font-size: 14px;
-          position: absolute;
-          top: -19px;
-          left: 24px;
-          background: #2E3440;
-          padding: 0 4px;
-      }
+    .section h2 {
+      font-size: 14px;
+      position: absolute;
+      top: -19px;
+      left: 24px;
+      background: #2E3440;
+      padding: 0 4px;
+    }
 
-      a {
-          color: white !important;
-      }
+    a {
+      color: white !important;
+    }
   </style>
 
 </head>
 
 <body>
-<h1>HyperMint Client SDK Test Bench</h1>
+  <h1>HyperMint Client SDK Test Bench</h1>
 
-<div class="section">
-  <h2>Wallet Management</h2>
-  <button onclick="contract.connect()">Connect</button>
-  <button onclick="contract.disconnect()">Disconnect</button>
-  <button onclick="contract.isWalletValid()">Is Wallet Valid</button>
-  <button onclick="contract.getTestWETH(0.3)">Get 0.1 test WETH</button>
-  <button onclick="contract.getWalletBalance()">Get Wallet Balance</button>
-</div>
+  <div class="section">
+    <h2>Wallet Management</h2>
+    <button onclick="contract.connect()">Connect</button>
+    <button onclick="contract.disconnect()">Disconnect</button>
+    <button onclick="contract.isWalletValid()">Is Wallet Valid</button>
+    <button onclick="contract.getTestWETH(0.3)">Get 0.1 test WETH</button>
+    <button onclick="contract.getWalletBalance()">Get Wallet Balance</button>
+  </div>
 
-<div class="section">
-  <h2>Contract</h2>
-  <button onclick="contract.getContractInformation()">Get Contract Information</button>
-  <button onclick="contract.getTokens()">Get Tokens</button>
-  <button onclick="contract.getToken(0)">Get Token</button>
-  <button onclick="contract.getTokenBalance(1)">Get Token Balance</button>
-  <button onclick="contract.getTotalMinted(0)">Get Token Minted</button>
-  <button onclick="contract.getTokenMetadata(1)">Get Token Metadata</button>
-  <button onclick="contract.getTokenAllocation(0, '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266')">Get Token Allocation
-  </button>
-</div>
+  <div class="section">
+    <h2>Contract</h2>
+    <button onclick="contract.getContractInformation()">Get Contract Information</button>
+    <button onclick="contract.getTokens()">Get Tokens</button>
+    <button onclick="contract.getToken(0)">Get Token</button>
+    <button onclick="contract.getTokenBalance(1)">Get Token Balance</button>
+    <button onclick="contract.getTotalMinted(0)">Get Token Minted</button>
+    <button onclick="contract.getTokenMetadata(1)">Get Token Metadata</button>
+    <button onclick="contract.getTokenAllocation(0, '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266')">Get Token Allocation
+    </button>
+    <button onclick="contract.burn(4)">BURN
+    </button>
 
-<div class="section">
-  <h2>Buying</h2>
-  <button onclick="buy(0)">Buy Token</button>
-  <button onclick="transfer()">Transfer Token</button>
-  <button onclick="buyAuthorised(1)">Buy Authorised
-    (Whitelist)
-  </button>
-</div>
+  </div>
 
-<div class="section">
-  <h2>Third Parties</h2>
-  <button onclick="openWidget(1)">Open MoonPay Widget</button>
-</div>
+  <div class="section">
+    <h2>Buying</h2>
+    <button onclick="buy(0)">Buy Token</button>
+    <button onclick="transfer()">Transfer Token</button>
+    <button onclick="buyAuthorised(1)">Buy Authorised
+      (Whitelist)
+    </button>
+  </div>
 
-<h1>Logs</h1>
-<div id="logs"></div>
+  <div class="section">
+    <h2>Third Parties</h2>
+    <button onclick="openWidget(1)">Open MoonPay Widget</button>
+  </div>
 
-<!--<script src="./dist/client-sdk-solana.js" type="application/javascript"></script>-->
-<script src="./dist/client-sdk-evm.js" type="application/javascript"></script>
+  <h1>Logs</h1>
+  <div id="logs"></div>
 
-<script>
-  function logger(method, message, isFatal, data) {
-    const logs = document.getElementById("logs");
-    logs.innerHTML = `<div class="log ${isFatal ? "error" : ""}">[${new Date().toLocaleTimeString()}] (${method}) - ${message}</div>` + (
-      data ? `<div class="log"><pre>${JSON.stringify(data, undefined, 4)}</pre></div>` : ""
-    ) + logs.innerHTML;
-  }
-</script>
+  <!--<script src="./dist/client-sdk-solana.js" type="application/javascript"></script>-->
+  <script src="./dist/client-sdk-evm.js" type="application/javascript"></script>
 
-<script type="application/javascript">
-  const { Contract, NFTContractType, NetworkEnvironment, NetworkType, NetworkChain } = HyperMint;
+  <script>
+    function logger(method, message, isFatal, data) {
+      const logs = document.getElementById("logs");
+      logs.innerHTML =
+        `<div class="log ${isFatal ? "error" : ""}">[${new Date().toLocaleTimeString()}] (${method}) - ${message}</div>` +
+        (
+          data ? `<div class="log"><pre>${JSON.stringify(data, undefined, 4)}</pre></div>` : ""
+        ) + logs.innerHTML;
+    }
+  </script>
+
+  <script type="application/javascript">
+    const {
+      Contract,
+      NFTContractType,
+      NetworkEnvironment,
+      NetworkType,
+      NetworkChain
+    } = HyperMint;
 
 
-  const contract = new Contract({
-    contractId: 'dd903464-1958-45f9-ae7e-bf468bcc1bf2',
-    contractAddress: '0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9',
-    contractType: NFTContractType.ERC1155,
-    networkEnvironment: NetworkEnvironment.Emulator,
-    networkType: NetworkType.Ethereum,
-    networkChain: NetworkChain.EVMLocal,
-    enableLogging: true,
-    logger,
-    hmURL: "http://localhost:4001/v1"
-  });
+    // const contract = new Contract({
+    //   contractId: 'dd903464-1958-45f9-ae7e-bf468bcc1bf2',
+    //   contractAddress: '0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9',
+    //   contractType: NFTContractType.ERC1155,
+    //   networkEnvironment: NetworkEnvironment.Emulator,
+    //   networkType: NetworkType.Ethereum,
+    //   networkChain: NetworkChain.EVMLocal,
+    //   enableLogging: true,
+    //   logger,
+    //   hmURL: "http://localhost:4001/v1"
+    // });
+    const contract = new Contract({
+      contractId: 'ab0b4350-737e-4a4a-8bf2-c0b5ccff35bb',
+      contractAddress: '0xafb76f591973f286af0f6fffeb4aeec9625cc1b8',
+      contractType: NFTContractType.ERC721,
+      networkEnvironment: NetworkEnvironment.Testnet,
+      networkType: NetworkType.Polygon,
+      networkChain: NetworkChain.Mumbai,
+      enableLogging: true,
+      logger,
+      hmURL: "https://api.hypermint.com/v1"
+    });
+  </script>
 
-</script>
+  <script>
+    async function buy(tokenId) {
+      const amount = prompt("Enter number of tokens to buy");
+      const transaction = await contract.buy(Number(amount), tokenId);
 
-<script>
-  async function buy(tokenId) {
-    const amount = prompt("Enter number of tokens to buy");
-    const transaction = await contract.buy(Number(amount), tokenId);
+      await contract.waitForTransaction(transaction);
 
-    await contract.waitForTransaction(transaction);
+      logger("Transaction",
+        `<a href="${contract.getTransactionExplorerUrl(transaction.hash)}" target="_blank">${transaction.hash}</a>`);
+    }
 
-    logger("Transaction", `<a href="${contract.getTransactionExplorerUrl(transaction.hash)}" target="_blank">${transaction.hash}</a>`);
-  }
+    async function buyAuthorised(tokenId) {
+      const amount = prompt("Enter number of tokens to buy");
+      const transaction = await contract.buyAuthorised(Number(amount), tokenId);
 
-  async function buyAuthorised(tokenId) {
-    const amount = prompt("Enter number of tokens to buy");
-    const transaction = await contract.buyAuthorised(Number(amount), tokenId);
+      await contract.waitForTransaction(transaction);
 
-    await contract.waitForTransaction(transaction);
+      logger("Transaction",
+        `<a href="${contract.getTransactionExplorerUrl(transaction.hash)}" target="_blank">${transaction.hash}</a>`);
+    }
 
-    logger("Transaction", `<a href="${contract.getTransactionExplorerUrl(transaction.hash)}" target="_blank">${transaction.hash}</a>`);
-  }
+    async function transfer() {
+      const tokenId = prompt("Enter token id");
+      const transaction = await contract.transfer("0x894BEE1735cCd4AbC811e30645cd981938B39f18", tokenId, 1);
 
-  async function transfer() {
-    const tokenId = prompt("Enter token id");
-    const transaction = await contract.transfer("0x894BEE1735cCd4AbC811e30645cd981938B39f18", tokenId, 1);
+      await contract.waitForTransaction(transaction);
 
-    await contract.waitForTransaction(transaction);
+      logger("Transaction",
+        `<a href="${contract.getTransactionExplorerUrl(transaction.hash)}" target="_blank">${transaction.hash}</a>`);
+    }
 
-    logger("Transaction", `<a href="${contract.getTransactionExplorerUrl(transaction.hash)}" target="_blank">${transaction.hash}</a>`);
-  }
-
-  async function openWidget(tokenId) {
-    window.open(await contract.getMoonPayWidgetUrl(tokenId));
-  }
-</script>
+    async function openWidget(tokenId) {
+      window.open(await contract.getMoonPayWidgetUrl(tokenId));
+    }
+  </script>
 </body>
