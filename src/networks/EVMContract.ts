@@ -15,6 +15,7 @@ import {
 import { ERC1155, ERC721 } from '../types/EVMABIs';
 import { IContract } from '../types/IContractEvm';
 import { Transaction } from '../types/Transaction';
+import { TransactionAndStatus } from '../types/TransactionAndStatus';
 import { WalletFactory } from '../providers/WalletFactory';
 import { BaseContract } from './BaseContract';
 import { WalletSelector } from '../providers/WalletSelector';
@@ -752,23 +753,54 @@ export class EVMContract extends BaseContract implements IContract {
 
     public async burn(
         tokenId: number,
-        amount: number = 1
-    ): Promise<Transaction> {
+        amount: number = 1,
+        wait: boolean = true
+    ): Promise<Transaction | TransactionAndStatus> {
         try {
             const contract = await this.getEVMContract();
             let burnTransaction: Transaction;
             if (this.config.contractType === NFTContractType.ERC721) {
                 this.logger.log('burn', 'starting ERC 721 token burn', false);
                 burnTransaction = await contract.burn(tokenId);
-                return burnTransaction;
             } else {
                 let address = await this.signer.getAddress();
                 this.logger.log('burn', 'starting ERC 1155 token burn', false);
                 burnTransaction = await contract.burn(address, tokenId, amount);
-                return burnTransaction;
             }
+            if (wait) {
+                this.logger.log('burn', 'Waiting on burn transaction...');
+                let transactionStatus = await this.waitForTransaction(
+                    burnTransaction
+                );
+                if (transactionStatus === TransactionStatus.Complete) {
+                    this.logger.log(
+                        'burn',
+                        'returning completed burn transaction'
+                    );
+                    return {
+                        hash: burnTransaction.hash,
+                        transactionStatus: TransactionStatus.Complete
+                    };
+                }
+                if (transactionStatus === TransactionStatus.Failed) {
+                    this.logger.log(
+                        'burn',
+                        'returning failed burn transaction'
+                    );
+                    return {
+                        hash: burnTransaction.hash,
+                        transactionStatus: TransactionStatus.Failed
+                    };
+                }
+            }
+            this.logger.log('burn', 'returning burn transaction');
+            return burnTransaction;
         } catch (error) {
-            this.logger.log('burn', error.message, true);
+            this.logger.log(
+                'burn',
+                'Error while executing burn either you donot have the token in your wallet or something has gone wrong',
+                true
+            );
         }
     }
 

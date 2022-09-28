@@ -4,6 +4,7 @@ import { Metadata } from './Metadata';
 import { TokenAllocation } from './TokenAllocation';
 import { TokenInformation } from './TokenInformation';
 import { Transaction } from './Transaction';
+import { TransactionAndStatus } from './TransactionAndStatus';
 import { IConnectedWallet } from './Wallet';
 
 export interface IContract {
@@ -51,5 +52,9 @@ export interface IContract {
 
     getMoonPayWidgetUrl: (tokenId: number) => Promise<string>;
 
-    burn: (tokenId: number, amount?: number) => Promise<Transaction>;
+    burn: (
+        tokenId: number,
+        amount?: number,
+        wait?: boolean
+    ) => Promise<Transaction | TransactionAndStatus>;
 }
