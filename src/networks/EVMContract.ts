@@ -251,6 +251,25 @@ export class EVMContract extends BaseContract implements IContract {
         this.logger.log('connect', 'Connected');
     }
 
+    public getSigner(): ethers.Signer {
+        if (!this.signer) {
+            this.logger.log('getSigner', 'No signer found', true);
+        }
+        return this.signer;
+    }
+
+    public setSigner(signer: ethers.Signer): void {
+        if (!signer) {
+            this.logger.log(
+                'getSigner',
+                'No signer was passed to the function',
+                true
+            );
+        }
+
+        this.signer = signer;
+    }
+
     public disconnect() {
         this.signer = undefined;
         this.removeChangeEventListeners();

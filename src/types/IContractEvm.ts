@@ -1,3 +1,4 @@
+import { ethers } from 'ethers';
 import { ContractInformation } from './ContractInformation';
 import { TransactionStatus, WalletProvider } from './Enums';
 import { Metadata } from './Metadata';
@@ -57,4 +58,6 @@ export interface IContract {
         amount?: number,
         wait?: boolean
     ) => Promise<Transaction | TransactionAndStatus>;
+    getSigner: () => ethers.Signer;
+    setSigner: (signer: ethers.Signer) => void;
 }
