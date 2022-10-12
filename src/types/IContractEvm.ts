@@ -59,5 +59,5 @@ export interface IContract {
         wait?: boolean
     ) => Promise<Transaction | TransactionAndStatus>;
     getSigner: () => ethers.Signer | undefined;
-    setSigner: (signer: ethers.Signer | undefined) => void;
+    setSigner: (signer?: ethers.Signer) => void;
 }
