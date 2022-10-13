@@ -1,5 +1,5 @@
-import { WalletProvider } from '../types/Enums';
-import { Logger } from '../helpers/Logger';
+import { WalletProvider } from "../types/Enums";
+import { Logger } from "../helpers/Logger";
 
 const walletSelectorStylesheet = `
     <style>
@@ -154,7 +154,7 @@ const walletSelectorHtml = `
             <div class="hm-wallets">
                 <div class="hm-wallet" data-wallet="${WalletProvider.Metamask}">
                     <div class="hm-wallet-name">MetaMask</div>
-                    <div class="hm-wallet-logo"><img src="https://hypermint.com/client-sdk/resources/metamask.png" alt="MetaMask"/></div>
+                    <div class="hm-wallet-logo"><img src="https://hypermint.com/client-sdk/resources/metamask.svg" alt="MetaMask"/></div>
                 </div>
 
                 <div class="hm-wallet" data-wallet="${WalletProvider.Coinbase}">
