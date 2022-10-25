@@ -1,14 +1,10 @@
-import { Config } from '../types/Config';
+import { BaseConfig } from '../types/BaseConfig';
 
 export class Logger {
-    private config: Config;
+    private config: BaseConfig;
 
-    public setConfig(config: Config) {
+    public setConfig(config: BaseConfig) {
         this.config = config;
-
-        if (config.enableLogging) {
-            this.log('constructor', 'Logging has been enabled');
-        }
     }
 
     public log(method: string, message: string, isFatal = false, data?: any) {

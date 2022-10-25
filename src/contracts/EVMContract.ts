@@ -1,120 +1,58 @@
-import { IWalletProvider } from './../types/IWalletProvider';
-import { BigNumber, ethers } from 'ethers';
+import { BigNumber, ethers, Signer } from 'ethers';
 import { EVMHelpers } from '../helpers/EVMHelpers';
 import { GenericHelpers } from '../helpers/GenericHelpers';
 import { HMAPI } from '../helpers/HMAPI';
-import { Config } from '../types/Config';
+import { ContractConfig } from '../types/ContractConfig';
 import { ContractInformation } from '../types/ContractInformation';
 import {
     NetworkChain,
     NetworkType,
     NFTContractType,
     TransactionStatus,
-    WalletProvider
+    WalletApp
 } from '../types/Enums';
 import { ERC1155, ERC721 } from '../types/EVMABIs';
 import { IContract } from '../types/IContractEvm';
 import { Transaction } from '../types/Transaction';
 import { TransactionAndStatus } from '../types/TransactionAndStatus';
-import { WalletFactory } from '../providers/WalletFactory';
 import { BaseContract } from './BaseContract';
-import { WalletSelector } from '../providers/WalletSelector';
+import { WalletSelector } from '../wallets/WalletSelector';
 import { formatEther } from 'ethers/lib/utils';
 import { IConnectedWallet } from '../types/Wallet';
+import { Wallet } from '../wallets/Wallet';
 
 export class EVMContract extends BaseContract implements IContract {
-    private signer: ethers.Signer;
+    private wallet: Wallet;
 
-    private walletProvider: IWalletProvider;
-
-    private ethereumProvider: any;
-
-    private chains = {
-        [NetworkChain.EVMLocal]: {
-            chainId: '0x539',
-            chainName: 'Local',
-            rpcUrls: ['http://localhost:8545'],
-            nativeCurrency: {
-                name: 'ETH Test',
-                symbol: 'ETEST',
-                decimals: 18
-            }
-        },
-        [NetworkChain.Mumbai]: {
-            chainId: '0x13881',
-            chainName: 'Mumbai',
-            rpcUrls: ['https://matic-mumbai.chainstacklabs.com'],
-            blockExplorerUrls: ['https://mumbai.polygonscan.com'],
-            nativeCurrency: {
-                name: 'MATIC',
-                symbol: 'MATIC',
-                decimals: 18
-            }
-        },
-        [NetworkChain.Polygon]: {
-            chainId: '0x89',
-            chainName: 'Polygon',
-            rpcUrls: ['https://polygon-rpc.com'],
-            blockExplorerUrls: ['https://polygonscan.com'],
-            nativeCurrency: {
-                name: 'MATIC',
-                symbol: 'MATIC',
-                decimals: 18
-            }
-        },
-        [NetworkChain.Goerli]: {
-            chainId: '0x5',
-            chainName: 'Goerli',
-            rpcUrls: [
-                'https://eth-goerli.g.alchemy.com/v2/PLCh4QRFSaauIUqazgnZ97NsgKYHYeJr'
-            ],
-            blockExplorerUrls: ['https://etherscan.io'],
-            nativeCurrency: {
-                name: 'ETH',
-                symbol: 'GoerliETH',
-                decimals: 18
-            }
-        },
-        [NetworkChain.Ethereum]: {
-            chainId: '0x1',
-            chainName: 'Ethereum',
-            rpcUrls: [
-                'https://eth-mainnet.g.alchemy.com/v2/zCcvsCCvVTijakQFV7RPcFG7UuhWnu1A'
-            ],
-            blockExplorerUrls: ['https://etherscan.io'],
-            nativeCurrency: {
-                name: 'ETH',
-                symbol: 'ETH',
-                decimals: 18
-            }
-        }
-    };
-
-    constructor(private config: Config) {
+    constructor(private config: ContractConfig) {
         super(config);
+        this.wallet = new Wallet(config);
         WalletSelector.init();
     }
 
     public async getConnectedWallet(): Promise<IConnectedWallet> {
+        if (!this.wallet.isConnected) {
+            return {
+                isConnected: false
+            };
+        }
+
         try {
-            if (!this.ethereumProvider) throw new Error();
-
-            if (!this.signer) throw new Error();
-
-            let contract = await this.getEVMContract();
+            // eslint-disable-next-line prefer-const
+            let { contract, signer } = await this.getEVMContract();
 
             if (this.isPolygon()) {
                 contract = await EVMHelpers.getWETHContract(
                     this.config,
-                    this.signer
+                    signer
                 );
             }
 
-            const address = await this.signer.getAddress();
+            const address = await signer.getAddress();
 
             const balance: string = this.isPolygon()
                 ? await contract.balanceOf(address)
-                : await this.signer.getBalance();
+                : await signer.getBalance();
 
             return {
                 isConnected: true,
@@ -142,14 +80,11 @@ export class EVMContract extends BaseContract implements IContract {
             );
         }
 
-        await this.connect();
+        const signer = await this.connect();
 
         this.logger.log('getTestWETH', `Getting ${amount} test WETH...`);
 
-        const wethContract = EVMHelpers.getWETHContract(
-            this.config,
-            this.signer
-        );
+        const wethContract = EVMHelpers.getWETHContract(this.config, signer);
 
         const transaction = await wethContract.deposit({
             value: ethers.utils.parseEther(amount.toString())
@@ -162,7 +97,7 @@ export class EVMContract extends BaseContract implements IContract {
 
     public async isWalletValid(): Promise<boolean> {
         try {
-            await this.connect(); // TODO: Might be best to send a requestAccounts rather than just init the connect everytime
+            await this.connect();
             this.logger.log('isWalletValid', `Wallet valid`);
             return true;
         } catch (e) {
@@ -171,97 +106,26 @@ export class EVMContract extends BaseContract implements IContract {
         }
     }
 
-    public async connect(wallet?: WalletProvider) {
-        if (this.signer) {
-            return;
+    public async connect(wallet?: WalletApp): Promise<Signer> {
+        if (!this.wallet.isConnected) {
+            await this.wallet.connect(wallet);
+            await this.registerChangeEventListeners();
         }
 
-        if (!wallet) {
-            try {
-                wallet = await WalletSelector.selectWallet(this.logger);
-            } catch (e) {
-                this.logger.log('connect', 'Failed selecting wallet', true);
-                return;
-            }
-        }
-
-        // TODO: it would be good for the selector to have a loading state and only close after transaction is sent
-        WalletSelector.closeSelector(this.logger);
-
-        const walletFactory = new WalletFactory(this.logger, this.config);
-
-        this.walletProvider = await walletFactory.getProvider(wallet);
-
-        let provider = await this.walletProvider.getWeb3Provider();
-
-        this.ethereumProvider = provider.provider;
-
-        const network = await provider.getNetwork();
-
-        if (network.chainId !== this.config.networkChain) {
-            this.logger.log('connect', 'Switching network...');
-
-            const chain = this.chains[this.config.networkChain];
-
-            if (!chain) {
-                this.logger.log('connect', 'Failed to select network', true);
-
-                return;
-            }
-
-            try {
-                await provider.send('wallet_switchEthereumChain', [
-                    { chainId: chain.chainId }
-                ]);
-            } catch (switchError) {
-                this.logger.log(
-                    'connect',
-                    'Adding network...',
-                    false,
-                    switchError
-                );
-
-                try {
-                    await provider.send('wallet_addEthereumChain', [chain]);
-                } catch (addError) {
-                    this.logger.log(
-                        'connect',
-                        'Failed to select network',
-                        true,
-                        addError
-                    );
-                }
-            }
-
-            provider = await this.walletProvider.getWeb3Provider();
-        }
-
-        if (wallet !== WalletProvider.WalletConnect) {
-            const accounts = await provider.send('eth_requestAccounts', []);
-
-            if (!accounts.length) {
-                this.logger.log('connect', 'No accounts found', true);
-            }
-        }
-
-        await this.registerChangeEventListeners();
-
-        this.signer = provider.getSigner();
-
-        this.logger.log('connect', 'Connected');
+        return this.wallet.signer;
     }
 
     public getSigner(): ethers.Signer | undefined {
-        return this.signer;
+        return this.wallet.signer;
     }
 
     public setSigner(signer?: ethers.Signer): void {
-        this.signer = signer;
+        this.wallet.signer = signer;
     }
 
     public disconnect() {
-        this.signer = undefined;
         this.removeChangeEventListeners();
+        this.wallet = new Wallet(this.config);
         this.logger.log('disconnect', 'Disconnected');
     }
 
@@ -271,19 +135,19 @@ export class EVMContract extends BaseContract implements IContract {
             `Getting token ${tokenId} balance...`
         );
 
-        const contract = await this.getEVMContract();
+        const { contract, signer } = await this.getEVMContract();
 
         let balance;
 
         if (this.config.contractType === NFTContractType.ERC721) {
-            balance = await contract.balanceOf(await this.signer.getAddress());
+            balance = await contract.balanceOf(await signer.getAddress());
         } else {
             if (tokenId === undefined) {
                 this.logger.log('getTokenBalance', 'Token id required', true);
             }
 
             balance = await contract.balanceOf(
-                await this.signer.getAddress(),
+                await signer.getAddress(),
                 tokenId
             );
         }
@@ -302,22 +166,19 @@ export class EVMContract extends BaseContract implements IContract {
             `Getting token ${tokenId} total minted...`
         );
 
-        const contract = await this.getEVMContract();
+        const { contract, signer } = await this.getEVMContract();
 
         let balance;
 
         if (this.config.contractType === NFTContractType.ERC721) {
-            balance = await contract.totalMinted(
-                await this.signer.getAddress()
-            );
+            balance = await contract.totalMinted(await signer.getAddress());
         } else {
             if (tokenId === undefined) {
                 this.logger.log('getTotalMinted', 'Token id required', true);
             }
 
-            // TODO: Migrate to total minted
             balance = await contract.balanceOf(
-                await this.signer.getAddress(),
+                await signer.getAddress(),
                 tokenId
             );
         }
@@ -331,9 +192,7 @@ export class EVMContract extends BaseContract implements IContract {
     }
 
     public async getWalletBalance(): Promise<number> {
-        if (!this.signer) {
-            await this.connect();
-        }
+        const signer = await this.connect();
 
         try {
             this.logger.log('getWalletBalance', `Getting wallet balance...`);
@@ -343,14 +202,12 @@ export class EVMContract extends BaseContract implements IContract {
             if (this.isPolygon()) {
                 const contract = EVMHelpers.getWETHContract(
                     this.config,
-                    this.signer
+                    signer
                 );
 
-                balance = await contract.balanceOf(
-                    await this.signer.getAddress()
-                );
+                balance = await contract.balanceOf(await signer.getAddress());
             } else {
-                balance = await this.signer.getBalance();
+                balance = await signer.getBalance();
             }
 
             const result = Number(ethers.utils.formatEther(balance));
@@ -371,7 +228,7 @@ export class EVMContract extends BaseContract implements IContract {
         tokenId?: number,
         wait = true
     ): Promise<Transaction> {
-        const contract = await this.getEVMContract();
+        const { contract, signer } = await this.getEVMContract();
 
         this.logger.log(
             'buy',
@@ -402,7 +259,7 @@ export class EVMContract extends BaseContract implements IContract {
 
             const wethContract = EVMHelpers.getWETHContract(
                 this.config,
-                this.signer
+                signer
             );
 
             const approveTransaction = await wethContract.approve(
@@ -431,13 +288,12 @@ export class EVMContract extends BaseContract implements IContract {
             }
 
             try {
-                const estimatedGasLimit = await contract.estimateGas.buy(
+                gasLimit = await contract.estimateGas.buy(
                     amount,
                     transactionArgs
                 );
-
-                gasLimit = estimatedGasLimit;
-            } catch {
+            } catch (e) {
+                console.log(e);
                 this.logger.log('buy', 'Unable to calculate gas limit', false);
             }
 
@@ -456,13 +312,11 @@ export class EVMContract extends BaseContract implements IContract {
             }
 
             try {
-                const estimatedGasLimit = await contract.estimateGas.buy(
+                gasLimit = await contract.estimateGas.buy(
                     tokenId,
                     amount,
                     transactionArgs
                 );
-
-                gasLimit = estimatedGasLimit;
             } catch {
                 this.logger.log('buy', 'Unable to calculate gas limit', false);
             }
@@ -493,8 +347,8 @@ export class EVMContract extends BaseContract implements IContract {
         expires?: number,
         signature?: string
     ): Promise<Transaction> {
-        const contract = await this.getEVMContract();
-        const address = await this.signer.getAddress();
+        const { contract, signer } = await this.getEVMContract();
+        const address = await signer.getAddress();
 
         this.logger.log(
             'buyAuthorised',
@@ -557,7 +411,7 @@ export class EVMContract extends BaseContract implements IContract {
 
             const wethContract = EVMHelpers.getWETHContract(
                 this.config,
-                this.signer
+                signer
             );
             const approveTransaction = await wethContract.approve(
                 this.config.contractAddress,
@@ -587,17 +441,14 @@ export class EVMContract extends BaseContract implements IContract {
             }
 
             try {
-                const estimatedGasLimit =
-                    await contract.estimateGas.buyAuthorised(
-                        amount,
-                        gweiPrice,
-                        maxPerAddress,
-                        expires,
-                        signature,
-                        transactionArgs
-                    );
-
-                gasLimit = estimatedGasLimit;
+                gasLimit = await contract.estimateGas.buyAuthorised(
+                    amount,
+                    gweiPrice,
+                    maxPerAddress,
+                    expires,
+                    signature,
+                    transactionArgs
+                );
             } catch {
                 this.logger.log(
                     'buyAuthorised',
@@ -628,18 +479,15 @@ export class EVMContract extends BaseContract implements IContract {
             }
 
             try {
-                const estimatedGasLimit =
-                    await contract.estimateGas.buyAuthorised(
-                        tokenId,
-                        amount,
-                        gweiPrice,
-                        maxPerAddress,
-                        expires,
-                        signature,
-                        transactionArgs
-                    );
-
-                gasLimit = estimatedGasLimit;
+                gasLimit = await contract.estimateGas.buyAuthorised(
+                    tokenId,
+                    amount,
+                    gweiPrice,
+                    maxPerAddress,
+                    expires,
+                    signature,
+                    transactionArgs
+                );
             } catch {
                 this.logger.log(
                     'buyAuthorised',
@@ -670,7 +518,7 @@ export class EVMContract extends BaseContract implements IContract {
     }
 
     public async transfer(to: string, tokenId: number): Promise<Transaction> {
-        const contract = await this.getEVMContract();
+        const { contract, signer } = await this.getEVMContract();
 
         this.logger.log('transfer', `Transferring ${tokenId} to ${to}...`);
 
@@ -679,11 +527,11 @@ export class EVMContract extends BaseContract implements IContract {
         if (this.config.contractType === NFTContractType.ERC721) {
             transaction = await contract[
                 'safeTransferFrom(address,address,uint256)'
-            ](await this.signer.getAddress(), to, tokenId);
+            ](await signer.getAddress(), to, tokenId);
         } else {
             transaction = await contract[
                 'safeTransferFrom(address,address,uint256,bytes)'
-            ](await this.signer.getAddress(), to, tokenId, '0x');
+            ](await signer.getAddress(), to, tokenId, '0x');
         }
 
         this.logger.log(
@@ -697,16 +545,14 @@ export class EVMContract extends BaseContract implements IContract {
     public async getTransactionStatus(
         transaction: Transaction
     ): Promise<TransactionStatus> {
-        if (!this.signer) {
-            await this.connect();
-        }
+        const signer = await this.connect();
 
         this.logger.log(
             'getTransactionStatus',
             `Getting transaction status for ${transaction.hash}`
         );
 
-        const receipt = await this.signer.provider.getTransactionReceipt(
+        const receipt = await signer.provider.getTransactionReceipt(
             transaction.hash
         );
 
@@ -761,25 +607,29 @@ export class EVMContract extends BaseContract implements IContract {
 
     public async burn(
         tokenId: number,
-        amount: number = 1,
-        wait: boolean = true
+        amount = 1,
+        wait = true
     ): Promise<Transaction | TransactionAndStatus> {
         try {
-            const contract = await this.getEVMContract();
+            const { contract, signer } = await this.getEVMContract();
             let burnTransaction: Transaction;
+
             if (this.config.contractType === NFTContractType.ERC721) {
                 this.logger.log('burn', 'starting ERC 721 token burn', false);
                 burnTransaction = await contract.burn(tokenId);
             } else {
-                let address = await this.signer.getAddress();
+                const address = await signer.getAddress();
                 this.logger.log('burn', 'starting ERC 1155 token burn', false);
                 burnTransaction = await contract.burn(address, tokenId, amount);
             }
+
             if (wait) {
                 this.logger.log('burn', 'Waiting on burn transaction...');
-                let transactionStatus = await this.waitForTransaction(
+
+                const transactionStatus = await this.waitForTransaction(
                     burnTransaction
                 );
+
                 if (transactionStatus === TransactionStatus.Complete) {
                     this.logger.log(
                         'burn',
@@ -801,12 +651,13 @@ export class EVMContract extends BaseContract implements IContract {
                     };
                 }
             }
+
             this.logger.log('burn', 'returning burn transaction');
             return burnTransaction;
         } catch (error) {
             this.logger.log(
                 'burn',
-                'Error while executing burn either you donot have the token in your wallet or something has gone wrong',
+                'Error while executing burn either you do not have the token in your wallet or something has gone wrong',
                 true
             );
         }
@@ -820,18 +671,22 @@ export class EVMContract extends BaseContract implements IContract {
         return this.config.networkChain === NetworkChain.Mumbai;
     }
 
-    private async getEVMContract(): Promise<ethers.Contract> {
-        if (!this.signer) {
-            await this.connect();
-        }
+    private async getEVMContract(): Promise<{
+        contract: ethers.Contract;
+        signer: Signer;
+    }> {
+        const signer = await this.connect();
 
-        return new ethers.Contract(
-            this.config.contractAddress,
-            this.config.contractType === NFTContractType.ERC721
-                ? ERC721
-                : ERC1155,
-            this.signer
-        );
+        return {
+            signer,
+            contract: new ethers.Contract(
+                this.config.contractAddress,
+                this.config.contractType === NFTContractType.ERC721
+                    ? ERC721
+                    : ERC1155,
+                signer
+            )
+        };
     }
 
     private async validateBuy(
@@ -898,25 +753,25 @@ export class EVMContract extends BaseContract implements IContract {
         return { totalPrice: price, contractInfo };
     }
 
-    private async registerChangeEventListeners(): Promise<void> {
-        this.ethereumProvider.on(
+    private registerChangeEventListeners() {
+        this.wallet.web3Provider.on(
             'chainChanged',
             this.onWalletChainChanged.bind(this)
         );
 
-        this.ethereumProvider.on(
+        this.wallet.web3Provider.on(
             'accountsChanged',
             this.onAccountChanged.bind(this)
         );
     }
 
-    private async removeChangeEventListeners(): Promise<void> {
-        this.ethereumProvider.removeListener(
+    private removeChangeEventListeners() {
+        this.wallet.web3Provider.removeListener(
             'chainChanged',
             this.onWalletChainChanged.bind(this)
         );
 
-        this.ethereumProvider.removeListener(
+        this.wallet.web3Provider.removeListener(
             'accountsChanged',
             this.onAccountChanged.bind(this)
         );

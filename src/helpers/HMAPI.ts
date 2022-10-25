@@ -1,7 +1,7 @@
 import { AuthoriseEVMBuyResponse } from '../types/AuthoriseEVMBuyResponse';
 import { BuyTokensRequest } from '../types/BuyTokensRequest';
 import { BuyTokensResponse } from '../types/BuyTokensResponse';
-import { Config } from '../types/Config';
+import { ContractConfig } from '../types/ContractConfig';
 import { ContractInformation } from '../types/ContractInformation';
 import { TokenInformation } from '../types/TokenInformation';
 import { UpdateBuyTokenRequest } from '../types/UpdateBuyTokenRequest';
@@ -9,7 +9,7 @@ import { UpdateBuyTokenRequest } from '../types/UpdateBuyTokenRequest';
 // TODO: convert to a stateful API client rather than statics
 export class HMAPI {
     public static async getContract(
-        config: Config
+        config: ContractConfig
     ): Promise<ContractInformation> {
         const url = `${HMAPI.getHMBaseUrl(config)}/nft-contract/${
             config.contractId
@@ -28,7 +28,9 @@ export class HMAPI {
         return result;
     }
 
-    public static async getTokens(config: Config): Promise<TokenInformation[]> {
+    public static async getTokens(
+        config: ContractConfig
+    ): Promise<TokenInformation[]> {
         const url = `${HMAPI.getHMBaseUrl(config)}/nft-contract/${
             config.contractId
         }/tokens`;
@@ -37,7 +39,7 @@ export class HMAPI {
     }
 
     public static async getToken(
-        config: Config,
+        config: ContractConfig,
         tokenId: number
     ): Promise<TokenInformation> {
         const url = `${HMAPI.getHMBaseUrl(config)}/nft-contract/${
@@ -48,7 +50,7 @@ export class HMAPI {
     }
 
     public static async getTokenAllocationForAddress(
-        config: Config,
+        config: ContractConfig,
         tokenId: string,
         walletAddress: string
     ) {
@@ -60,7 +62,7 @@ export class HMAPI {
     }
 
     public static async getSolanaApproveInstruction(
-        config: Config,
+        config: ContractConfig,
         destination: string,
         tokenId = 1,
         amount = 1
@@ -93,7 +95,7 @@ export class HMAPI {
     }
 
     public static async updateSolanaBuyRequest(
-        config: Config,
+        config: ContractConfig,
         mintId: string,
         transactionHash: string
     ): Promise<boolean> {
@@ -117,7 +119,7 @@ export class HMAPI {
     }
 
     public static async authoriseEVMBuy(
-        config: Config,
+        config: ContractConfig,
         tokenId: number,
         address: string,
         amount: number
@@ -130,7 +132,7 @@ export class HMAPI {
     }
 
     public static async getMoonPayWidgetUrl(
-        config: Config,
+        config: ContractConfig,
         tokenId: number
     ): Promise<string> {
         const url = `${HMAPI.getHMBaseUrl(config)}/moonpay/widget/${
@@ -142,7 +144,7 @@ export class HMAPI {
         return result.text();
     }
 
-    private static getHMBaseUrl(config: Config) {
+    private static getHMBaseUrl(config: ContractConfig) {
         return config.hmURL ?? 'https://api.hypermint.com/v1';
     }
 }

@@ -1,5 +1,4 @@
-import { WalletProvider } from "../types/Enums";
-import { Logger } from "../helpers/Logger";
+import { WalletApp } from '../types/Enums';
 
 const walletSelectorStylesheet = `
     <style>
@@ -152,17 +151,17 @@ const walletSelectorHtml = `
             </div>
 
             <div class="hm-wallets">
-                <div class="hm-wallet" data-wallet="${WalletProvider.Metamask}">
+                <div class="hm-wallet" data-wallet="${WalletApp.Metamask}">
                     <div class="hm-wallet-name">MetaMask</div>
                     <div class="hm-wallet-logo"><img src="https://hypermint.com/client-sdk/resources/metamask.svg" alt="MetaMask"/></div>
                 </div>
 
-                <div class="hm-wallet" data-wallet="${WalletProvider.Coinbase}">
+                <div class="hm-wallet" data-wallet="${WalletApp.Coinbase}">
                     <div class="hm-wallet-name">Coinbase Wallet</div>
                     <div class="hm-wallet-logo"><img src="https://hypermint.com/client-sdk/resources/coinbase.png" alt="Coinbase Wallet"/></div>
                 </div>
 
-                <div class="hm-wallet" data-wallet="${WalletProvider.WalletConnect}">
+                <div class="hm-wallet" data-wallet="${WalletApp.WalletConnect}">
                     <div class="hm-wallet-name">WalletConnect</div>
                     <div class="hm-wallet-logo"><img src="https://hypermint.com/client-sdk/resources/walletconnect.svg" alt="WalletConnect"/></div>
                 </div>
@@ -184,7 +183,7 @@ export class WalletSelector {
         }
     }
 
-    public static selectWallet(logger: Logger): Promise<WalletProvider> {
+    public static selectWallet(): Promise<WalletApp> {
         return new Promise((resolve, reject) => {
             const overlay = document.getElementById('hm-overlay');
             const dialog = document.getElementById('hm-dialog');
@@ -197,7 +196,7 @@ export class WalletSelector {
             );
 
             const onClose = () => {
-                WalletSelector.closeSelector(logger);
+                WalletSelector.closeSelector();
                 reject();
             };
 
@@ -207,20 +206,16 @@ export class WalletSelector {
             const wallets = document.querySelectorAll('.hm-wallet');
 
             for (const wallet of wallets) {
-                wallet.addEventListener('click', (e) => {
-                    e.stopPropagation();
-
+                wallet.addEventListener('click', () => {
                     return resolve(
-                        wallet.getAttribute('data-wallet') as WalletProvider
+                        wallet.getAttribute('data-wallet') as WalletApp
                     );
                 });
             }
         });
     }
 
-    public static closeSelector(logger: Logger) {
-        logger.log('selectWallet', 'User closed wallet selector');
-
+    public static closeSelector() {
         const overlay = document.getElementById('hm-overlay');
         const dialog = document.getElementById('hm-dialog');
 

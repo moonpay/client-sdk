@@ -1,2 +1,2 @@
-export { SolanaContract as Contract } from './networks/SolanaContract';
+export { SolanaContract as Contract } from './contracts/SolanaContract';
 export * from './types/Enums';

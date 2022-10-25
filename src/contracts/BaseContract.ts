@@ -1,6 +1,6 @@
 import { HMAPI } from '../helpers/HMAPI';
 import { Logger } from '../helpers/Logger';
-import { Config } from '../types/Config';
+import { ContractConfig } from '../types/ContractConfig';
 import { ContractInformation } from '../types/ContractInformation';
 import {
     NetworkChain,
@@ -15,7 +15,7 @@ export class BaseContract {
     public logger = new Logger();
     private contractInformation: ContractInformation;
 
-    constructor(private _config: Config) {
+    constructor(private _config: ContractConfig) {
         this.logger.setConfig(_config);
     }
 

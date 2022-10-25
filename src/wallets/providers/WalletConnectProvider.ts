@@ -1,13 +1,13 @@
 import WalletConnectWeb3Provider from '@walletconnect/web3-provider';
 import { ethers } from 'ethers';
-import { Config } from '../types/Config';
-import { Logger } from '../helpers/Logger';
+import { Logger } from '../../helpers/Logger';
 import WalletProvider from './WalletProvider';
+import { BaseConfig } from '../../types/BaseConfig';
 
 export default class WalletConnecProvider extends WalletProvider {
     constructor(
         protected readonly logger: Logger,
-        private readonly config: Config
+        private readonly config: BaseConfig
     ) {
         super(logger);
     }
