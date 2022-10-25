@@ -16,7 +16,6 @@ import { IContract } from '../types/IContractEvm';
 import { Transaction } from '../types/Transaction';
 import { TransactionAndStatus } from '../types/TransactionAndStatus';
 import { BaseContract } from './BaseContract';
-import { WalletSelector } from '../wallets/WalletSelector';
 import { formatEther } from 'ethers/lib/utils';
 import { IConnectedWallet } from '../types/Wallet';
 import { Wallet } from '../wallets/Wallet';
@@ -27,7 +26,6 @@ export class EVMContract extends BaseContract implements IContract {
     constructor(private config: ContractConfig) {
         super(config);
         this.wallet = new Wallet(config);
-        WalletSelector.init();
     }
 
     public async getConnectedWallet(): Promise<IConnectedWallet> {
@@ -293,8 +291,12 @@ export class EVMContract extends BaseContract implements IContract {
                     transactionArgs
                 );
             } catch (e) {
-                console.log(e);
-                this.logger.log('buy', 'Unable to calculate gas limit', false);
+                this.logger.log(
+                    'buy',
+                    'Unable to calculate gas limit',
+                    false,
+                    e
+                );
             }
 
             transactionArgs.gasLimit = gasLimit;
@@ -317,8 +319,13 @@ export class EVMContract extends BaseContract implements IContract {
                     amount,
                     transactionArgs
                 );
-            } catch {
-                this.logger.log('buy', 'Unable to calculate gas limit', false);
+            } catch (e) {
+                this.logger.log(
+                    'buy',
+                    'Unable to calculate gas limit',
+                    false,
+                    e
+                );
             }
 
             transactionArgs.gasLimit = gasLimit;

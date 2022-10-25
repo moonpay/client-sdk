@@ -68,7 +68,7 @@ export class Wallet {
     }
 
     public get isConnected(): boolean {
-        return !!this._web3Provider;
+        return !!this._signer;
     }
 
     public async connect(walletApp?: WalletApp) {
