@@ -101,8 +101,6 @@
     </button>
     <button onclick="contract.burn(0)">Burn Token
     </button>
-
-
   </div>
 
   <div class="section">
@@ -117,6 +115,11 @@
   <div class="section">
     <h2>Third Parties</h2>
     <button onclick="openWidget(1)">Open MoonPay Widget</button>
+  </div>
+
+  <div class="section">
+    <h2>Authenticate</h2>
+    <button onclick="authenticate.authenticate()">Authenticate</button>
   </div>
 
   <h1>Logs</h1>
@@ -138,21 +141,19 @@
 
   <script type="application/javascript">
     const {
-      Contract,
-      NFTContractType,
-      NetworkEnvironment,
-      NetworkType,
-      NetworkChain
+      Authenticate,
+      Contract
     } = HyperMint;
-
 
     const contract = new Contract({
       contractId: 'bf19ddc9-05ab-44cb-ba43-a777de280b3a',
-      contractAddress: '0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9',
-      contractType: NFTContractType.ERC721,
-      networkEnvironment: NetworkEnvironment.Emulator,
-      networkType: NetworkType.Ethereum,
-      networkChain: NetworkChain.EVMLocal,
+      enableLogging: true,
+      logger,
+      hmURL: "http://localhost:4001/v1"
+    });
+
+    const authenticate = new Authenticate({
+      appId: '075f57a8-65dc-477e-9a8e-0ea19bbdbd52',
       enableLogging: true,
       logger,
       hmURL: "http://localhost:4001/v1"
