@@ -71,9 +71,9 @@ jobs:
           name: Build
           command: npm run build
       - persist_to_workspace:
-          root: dist
+          root: .
           paths:
-            - .
+            - dist
 
   notify-deployment-will-happen:
     docker:
@@ -89,15 +89,20 @@ jobs:
       - notify:
           message: ":white_check_mark: Distribute complete"
 
-  distribute:
+  upload:
     resource_class: large
     docker:
       - image: amazon/aws-cli
     steps:
       - run:
+          name: Install tar utility
+          command: yum install -y tar gzip
+      - attach_workspace:
+          at: .
+      - run:
           name: 'Upload to S3'
           command: |
-            aws s3 sync dist s3://hypermint.com/client-sdk/temp
+            aws s3 sync ./dist s3://hypermint.com/client-sdk --acl public-read
 
 workflows:
   distribute:
@@ -112,16 +117,18 @@ workflows:
       - build:
           requires:
             - install-dependencies
-      - distribute:
+      - upload:
+          requires:
+            - build
           context: aws-config
-#          filters:
-#            branches:
-#              only:
-#                main
+          filters:
+            branches:
+              only:
+                main
       - notify-deployment-complete:
           context: slack
           requires:
-            - distribute
+            - upload
           filters:
             branches:
               only:
