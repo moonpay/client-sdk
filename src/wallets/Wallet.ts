@@ -20,55 +20,51 @@ export class Wallet {
             this.config
         )
     };
+    private _provider: IWalletProvider;
+    private _signer: Signer;
+    private _web3Provider: Web3Provider;
+    private _app: WalletApp;
 
     constructor(private config: BaseConfig) {
         this._logger.setConfig(config);
         WalletSelector.init();
     }
 
-    private _app: WalletApp;
+    public get isConnected(): boolean {
+        return !!this._signer;
+    }
 
-    public get app(): WalletApp {
+    public getApp(): WalletApp {
         return this._app;
     }
 
-    private _signer: Signer;
-
-    public get signer(): Signer {
-        if (!this._web3Provider) {
-            this._logger.log('signer', 'Wallet not connected', true);
-        }
-
-        return this._signer;
-    }
-
-    public set signer(signer: Signer) {
+    public setSigner(signer: Signer) {
         this._logger.log('signer', 'Setting custom signer...');
         this._signer = signer;
     }
 
-    private _provider: IWalletProvider;
-
-    public get provider(): providers.ExternalProvider {
+    public async getWeb3Provider(): Promise<Web3Provider> {
         if (!this._web3Provider) {
-            this._logger.log('provider', 'Wallet not connected', true);
-        }
-
-        return this._web3Provider.provider;
-    }
-
-    private _web3Provider: Web3Provider;
-
-    public get web3Provider(): Web3Provider {
-        if (!this._web3Provider) {
-            this._logger.log('web3Provider', 'Wallet not connected', true);
+            await this.connect();
         }
 
         return this._web3Provider;
     }
 
-    public get isConnected(): boolean {
-        return !!this._signer;
+    public async getSigner(): Promise<Signer> {
+        if (!this._signer) {
+            await this.connect();
+        }
+
+        return this._signer;
+    }
+
+    public async getProvider(): Promise<providers.ExternalProvider> {
+        if (!this._web3Provider) {
+            await this.connect();
+        }
+
+        return this._web3Provider.provider;
     }
 
     public async connect(walletApp?: WalletApp) {

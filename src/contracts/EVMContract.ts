@@ -21,7 +21,7 @@ import { IConnectedWallet } from '../types/Wallet';
 import { Wallet } from '../wallets/Wallet';
 
 export class EVMContract extends BaseContract implements IContract {
-    private wallet: Wallet;
+    public wallet: Wallet;
 
     constructor(private config: ContractConfig) {
         super(config);
@@ -78,7 +78,7 @@ export class EVMContract extends BaseContract implements IContract {
             );
         }
 
-        const signer = await this.connect();
+        const signer = await this.wallet.getSigner();
 
         this.logger.log('getTestWETH', `Getting ${amount} test WETH...`);
 
@@ -104,21 +104,19 @@ export class EVMContract extends BaseContract implements IContract {
         }
     }
 
-    public async connect(wallet?: WalletApp): Promise<Signer> {
+    public async connect(wallet?: WalletApp) {
         if (!this.wallet.isConnected) {
             await this.wallet.connect(wallet);
             await this.registerChangeEventListeners();
         }
-
-        return this.wallet.signer;
     }
 
-    public getSigner(): ethers.Signer | undefined {
-        return this.wallet.signer;
+    public async getSigner(): Promise<ethers.Signer | undefined> {
+        return this.wallet.getSigner();
     }
 
     public setSigner(signer?: ethers.Signer): void {
-        this.wallet.signer = signer;
+        this.wallet.setSigner(signer);
     }
 
     public disconnect() {
@@ -190,7 +188,7 @@ export class EVMContract extends BaseContract implements IContract {
     }
 
     public async getWalletBalance(): Promise<number> {
-        const signer = await this.connect();
+        const signer = await this.wallet.getSigner();
 
         try {
             this.logger.log('getWalletBalance', `Getting wallet balance...`);
@@ -552,7 +550,7 @@ export class EVMContract extends BaseContract implements IContract {
     public async getTransactionStatus(
         transaction: Transaction
     ): Promise<TransactionStatus> {
-        const signer = await this.connect();
+        const signer = await this.wallet.getSigner();
 
         this.logger.log(
             'getTransactionStatus',
@@ -682,7 +680,7 @@ export class EVMContract extends BaseContract implements IContract {
         contract: ethers.Contract;
         signer: Signer;
     }> {
-        const signer = await this.connect();
+        const signer = await this.wallet.getSigner();
 
         return {
             signer,
@@ -760,25 +758,21 @@ export class EVMContract extends BaseContract implements IContract {
         return { totalPrice: price, contractInfo };
     }
 
-    private registerChangeEventListeners() {
-        this.wallet.web3Provider.on(
-            'chainChanged',
-            this.onWalletChainChanged.bind(this)
-        );
-
-        this.wallet.web3Provider.on(
-            'accountsChanged',
-            this.onAccountChanged.bind(this)
-        );
+    private async registerChangeEventListeners() {
+        const provider = await this.wallet.getWeb3Provider();
+        provider.on('chainChanged', this.onWalletChainChanged.bind(this));
+        provider.on('accountsChanged', this.onAccountChanged.bind(this));
     }
 
-    private removeChangeEventListeners() {
-        this.wallet.web3Provider.removeListener(
+    private async removeChangeEventListeners() {
+        const provider = await this.wallet.getWeb3Provider();
+
+        provider.removeListener(
             'chainChanged',
             this.onWalletChainChanged.bind(this)
         );
 
-        this.wallet.web3Provider.removeListener(
+        provider.removeListener(
             'accountsChanged',
             this.onAccountChanged.bind(this)
         );
