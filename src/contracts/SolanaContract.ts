@@ -7,7 +7,7 @@ import {
 } from '@solana/web3.js';
 import { Buffer } from 'buffer';
 import { HMAPI } from '../helpers/HMAPI';
-import { Config } from '../types/Config';
+import { ContractConfig } from '../types/ContractConfig';
 import { NetworkEnvironment, TransactionStatus } from '../types/Enums';
 import { IContract } from '../types/IContractSolana';
 import { Transaction } from '../types/Transaction';
@@ -18,11 +18,8 @@ declare const window;
 export class SolanaContract extends BaseContract implements IContract {
     private walletAddress;
 
-    constructor(private config: Config) {
+    constructor(private config: ContractConfig) {
         super(config);
-    }
-    public async getConnectedWallet(): Promise<any> {
-        throw new Error('Not supported');
     }
 
     private static parseTransaction(transaction: any): any {
@@ -49,6 +46,10 @@ export class SolanaContract extends BaseContract implements IContract {
         }
 
         return new SolanaTransaction(transaction);
+    }
+
+    public async getConnectedWallet(): Promise<any> {
+        throw new Error('Not supported');
     }
 
     public async buy(

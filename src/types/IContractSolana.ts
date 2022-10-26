@@ -1,5 +1,5 @@
 import { ContractInformation } from './ContractInformation';
-import { TransactionStatus, WalletProvider } from './Enums';
+import { TransactionStatus, WalletApp } from './Enums';
 import { Metadata } from './Metadata';
 import { TokenAllocation } from './TokenAllocation';
 import { TokenInformation } from './TokenInformation';
@@ -7,7 +7,7 @@ import { Transaction } from './Transaction';
 import { IConnectedWallet } from './Wallet';
 
 export interface IContract {
-    connect: (wallet?: WalletProvider, purchasingTokenId?: number) => void;
+    connect: (wallet?: WalletApp, purchasingTokenId?: number) => void;
     getConnectedWallet: () => Promise<IConnectedWallet>;
     getContractInformation: () => Promise<ContractInformation>;
     getTokenBalance: () => Promise<number>;

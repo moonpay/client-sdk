@@ -1,14 +1,6 @@
-import {
-    NetworkChain,
-    NetworkEnvironment,
-    NetworkType,
-    NFTContractType
-} from './Enums';
+import { NetworkChain, NetworkEnvironment, NetworkType } from './Enums';
 
-export interface Config {
-    contractId: string;
-    contractAddress: string;
-    contractType: NFTContractType;
+export interface BaseConfig {
     networkType: NetworkType;
     networkEnvironment: NetworkEnvironment;
     networkChain: NetworkChain;

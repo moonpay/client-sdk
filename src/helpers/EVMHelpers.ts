@@ -1,10 +1,13 @@
 import { ethers } from 'ethers';
-import { Config } from '../types/Config';
+import { ContractConfig } from '../types/ContractConfig';
 import { NetworkChain } from '../types/Enums';
 import { WETHABI } from '../types/EVMABIs';
 
 export class EVMHelpers {
-    public static getWETHContract(config: Config, signer: ethers.Signer) {
+    public static getWETHContract(
+        config: ContractConfig,
+        signer: ethers.Signer
+    ) {
         let address;
 
         switch (config.networkChain) {

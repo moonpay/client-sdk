@@ -37,7 +37,7 @@ export enum NetworkChain {
     Mumbai = 80001
 }
 
-export enum WalletProvider {
+export enum WalletApp {
     Coinbase = 'Coinbase',
     Metamask = 'Metamask',
     WalletConnect = 'WalletConnect'
