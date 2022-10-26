@@ -1,0 +1,126 @@
+version: 2.1
+orbs:
+  slack: circleci/slack@4.10.1
+
+commands:
+  restore_deps:
+    steps:
+      - checkout
+      - attach_workspace:
+          name: Restore package-lock.json
+          at: .
+      - restore_cache:
+          name: Restore NPM packages cache
+          keys:
+            - deps-cache-{{ checksum "package-lock.json" }}
+  notify:
+    parameters:
+      message:
+        description: The message to send
+        type: string
+    steps:
+      - slack/notify:
+          channel: engineering-deployments,
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "<<parameters.message>> (Client SDK)"
+                  }
+                }
+              ]
+            }
+          event: always
+jobs:
+  install-dependencies:
+    resource_class: large
+    docker:
+      - image: node:16-alpine
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restore NPM packages cache
+          keys:
+            - deps-cache-{{ checksum "package-lock.json" }}
+      - run:
+          name: Install dependencies
+          command: |
+            if [[ -d node_modules ]]; then
+                    exit 0
+            fi
+            npm ci --cache .npm --prefer-offline
+      - save_cache:
+          key: deps-cache-{{ checksum "package-lock.json" }}
+          paths:
+            - node_modules
+      - persist_to_workspace:
+          root: .
+          paths:
+            - package-lock.json
+
+  build:
+    resource_class: large
+    docker:
+      - image: node:16-alpine
+    steps:
+      - restore_deps
+      - run:
+          name: Build
+          command: npm run build
+      - persist_to_workspace:
+          root: dist
+
+  notify-deployment-will-happen:
+    docker:
+      - image: 'cimg/base:stable'
+    steps:
+      - notify:
+          message: ":steam_locomotive: Distribute build has been triggered"
+
+  notify-deployment-complete:
+    docker:
+      - image: 'cimg/base:stable'
+    steps:
+      - notify:
+          message: ":white_check_mark: Distribute complete"
+
+  distribute:
+    resource_class: large
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - run:
+          name: 'Upload to S3'
+          command: |
+            aws s3 sync dist s3://hypermint.com/client-sdk/temp
+
+workflows:
+  distribute:
+    jobs:
+      - install-dependencies
+      - notify-deployment-will-happen:
+          context: slack
+          filters:
+            branches:
+              only:
+                - main
+      - build:
+          requires:
+            - install-dependencies
+      - distribute:
+          context: aws-config
+#          filters:
+#            branches:
+#              only:
+#                main
+      - notify-deployment-complete:
+          context: slack
+          requires:
+            - distribute
+          filters:
+            branches:
+              only:
+                main
