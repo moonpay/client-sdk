@@ -89,7 +89,7 @@ jobs:
       - notify:
           message: ":white_check_mark: Distribute complete"
 
-  distribute:
+  upload:
     resource_class: large
     docker:
       - image: amazon/aws-cli
@@ -112,7 +112,9 @@ workflows:
       - build:
           requires:
             - install-dependencies
-      - distribute:
+      - upload:
+          requires:
+            - install-dependencies
           context: aws-config
 #          filters:
 #            branches:
@@ -121,7 +123,7 @@ workflows:
       - notify-deployment-complete:
           context: slack
           requires:
-            - distribute
+            - upload
           filters:
             branches:
               only:
