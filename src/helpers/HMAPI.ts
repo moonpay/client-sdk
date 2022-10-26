@@ -5,6 +5,11 @@ import { ContractConfig } from '../types/ContractConfig';
 import { ContractInformation } from '../types/ContractInformation';
 import { TokenInformation } from '../types/TokenInformation';
 import { UpdateBuyTokenRequest } from '../types/UpdateBuyTokenRequest';
+import { BaseConfig } from '../types/BaseConfig';
+import { AuthenticateStartResponse } from '../types/AuthenticateStartResponse';
+import { AuthenticateConfig } from '../types/AuthenticateConfig';
+import { AuthenticateCompleteInput } from '../types/AuthenticateCompleteInput';
+import { AuthenticateCompleteResponse } from '../types/AuthenticateCompleteResponse';
 
 // TODO: convert to a stateful API client rather than statics
 export class HMAPI {
@@ -144,7 +149,51 @@ export class HMAPI {
         return result.text();
     }
 
-    private static getHMBaseUrl(config: ContractConfig) {
+    public static async startAuthentication(
+        config: AuthenticateConfig,
+        address: string
+    ): Promise<AuthenticateStartResponse> {
+        const url = `${HMAPI.getHMBaseUrl(config)}/authenticate/${
+            config.appId
+        }/${address}`;
+
+        const response = await (await fetch(url)).json();
+
+        if (response.error) {
+            throw new Error(response.error);
+        }
+
+        return response;
+    }
+
+    public static async completeAuthentication(
+        config: AuthenticateConfig,
+        address: string,
+        input: AuthenticateCompleteInput
+    ): Promise<AuthenticateCompleteResponse> {
+        const url = `${HMAPI.getHMBaseUrl(config)}/authenticate/${
+            config.appId
+        }/${address}`;
+
+        const response = await (
+            await fetch(url, {
+                method: 'PUT',
+                mode: 'cors',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(input)
+            })
+        ).json();
+
+        if (response.error) {
+            throw new Error(response.error);
+        }
+
+        return response;
+    }
+
+    private static getHMBaseUrl(config: BaseConfig) {
         return config.hmURL ?? 'https://api.hypermint.com/v1';
     }
 }

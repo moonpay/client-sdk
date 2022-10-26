@@ -3,6 +3,6 @@ import { BaseConfig } from './BaseConfig';
 
 export interface ContractConfig extends BaseConfig {
     contractId: string;
-    contractAddress: string;
-    contractType: NFTContractType;
+    contractAddress?: string;
+    contractType?: NFTContractType;
 }

@@ -22,10 +22,19 @@ import { Wallet } from '../wallets/Wallet';
 
 export class EVMContract extends BaseContract implements IContract {
     public wallet: Wallet;
+    /*
+    Allows the constructor to kick off fetching contract information for config
+    to avoid the user having to wait
+ */
+    private fetchContractPromise?: Promise<void>;
 
     constructor(private config: ContractConfig) {
         super(config);
         this.wallet = new Wallet(config);
+
+        if (!config.contractAddress) {
+            this.fetchContractPromise = this.loadConfigFromId();
+        }
     }
 
     public async getConnectedWallet(): Promise<IConnectedWallet> {
@@ -106,6 +115,7 @@ export class EVMContract extends BaseContract implements IContract {
 
     public async connect(wallet?: WalletApp) {
         if (!this.wallet.isConnected) {
+            this.fetchContractPromise && (await this.fetchContractPromise);
             await this.wallet.connect(wallet);
             await this.registerChangeEventListeners();
         }
@@ -666,6 +676,23 @@ export class EVMContract extends BaseContract implements IContract {
                 true
             );
         }
+    }
+
+    private async loadConfigFromId() {
+        const { network } = await this.getContractInformation();
+        const { contractAddress, contractType, chain, type, environment } =
+            network;
+
+        this.config = {
+            ...this.config,
+            contractAddress,
+            contractType,
+            networkChain: chain,
+            networkType: type,
+            networkEnvironment: environment
+        };
+
+        this.wallet = new Wallet(this.config);
     }
 
     private isPolygon(): boolean {

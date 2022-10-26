@@ -149,9 +149,11 @@ export class BaseContract {
 
         const contract = await this.getContractInformation();
 
-        const data = await (
-            await fetch(await contract.metadata.contractUrl)
-        ).json();
+        const data: Metadata = {
+            name: contract.name,
+            description: contract.metadata.description,
+            image: contract.metadata.image
+        };
 
         if (data) {
             const keys = ['image'];

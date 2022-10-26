@@ -140,4 +140,12 @@ export class Wallet {
         this._signer = this._web3Provider.getSigner();
         this._logger.log('connect', 'Connected');
     }
+
+    public async getAddress(): Promise<string> {
+        return this._signer.getAddress();
+    }
+
+    public async requestSignature(message: string): Promise<string> {
+        return this._signer.signMessage(message);
+    }
 }
