@@ -72,6 +72,8 @@ jobs:
           command: npm run build
       - persist_to_workspace:
           root: dist
+          paths:
+            - .
 
   notify-deployment-will-happen:
     docker:
