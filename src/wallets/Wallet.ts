@@ -67,10 +67,6 @@ export class Wallet {
         return this._web3Provider.provider;
     }
 
-    public get isConnected(): boolean {
-        return !!this._signer;
-    }
-
     public async connect(walletApp?: WalletApp) {
         this._logger.log('connect', 'Connecting...');
 
