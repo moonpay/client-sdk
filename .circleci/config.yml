@@ -94,10 +94,12 @@ jobs:
     docker:
       - image: amazon/aws-cli
     steps:
+      - attach_workspace:
+          at: .
       - run:
           name: 'Upload to S3'
           command: |
-            aws s3 sync dist s3://hypermint.com/client-sdk/temp
+            aws s3 sync ./dist s3://hypermint.com/client-sdk/temp
 
 workflows:
   distribute:
