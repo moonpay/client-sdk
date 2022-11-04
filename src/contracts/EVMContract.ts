@@ -532,7 +532,11 @@ export class EVMContract extends BaseContract implements IContract {
         return buyTransaction;
     }
 
-    public async transfer(to: string, tokenId: number): Promise<Transaction> {
+    public async transfer(
+        to: string,
+        tokenId: number,
+        amount = 1
+    ): Promise<Transaction> {
         const { contract, signer } = await this.getEVMContract();
 
         this.logger.log('transfer', `Transferring ${tokenId} to ${to}...`);
@@ -545,8 +549,8 @@ export class EVMContract extends BaseContract implements IContract {
             ](await signer.getAddress(), to, tokenId);
         } else {
             transaction = await contract[
-                'safeTransferFrom(address,address,uint256,bytes)'
-            ](await signer.getAddress(), to, tokenId, '0x');
+                'safeTransferFrom(address,address,uint256,uint256,bytes)'
+            ](await signer.getAddress(), to, tokenId, amount, '0x');
         }
 
         this.logger.log(
