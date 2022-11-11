@@ -2,7 +2,7 @@
 
 Public client sdk for interacting with HyperMint contracts.
 
-Docs can be found at https://docs.hypermint.com/client-sdk
+Docs can be found at [https://docs.hypermint.com/developers/sdk](https://docs.hypermint.com/developers/sdk)
 
 ## Contributing
 If you spot a problem or wish to contribute to this SDK, either raise a Pull Request or contact support@hypermint.com
