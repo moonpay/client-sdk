@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import WalletProvider from './WalletProvider';
 
 export default class MetaMaskWalletProvider extends WalletProvider {
-    private readonly deeplinkURL = `https://metamask.app.link/dapp/${window.location.host}`;
+    private readonly deeplinkURL = `https://metamask.app.link/dapp/${window.location.href}`;
 
     public async getWeb3Provider() {
         let metamaskProvider: any = window?.ethereum?.isMetaMask

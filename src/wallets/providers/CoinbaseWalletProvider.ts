@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import WalletProvider from './WalletProvider';
 
 export default class CoinbaseWalletProvider extends WalletProvider {
-    private readonly deeplinkURL = `https://go.cb-w.com/dapp?cb_url=${window.location.host}`;
+    private readonly deeplinkURL = `https://go.cb-w.com/dapp?cb_url=${window.location.href}`;
 
     public async getWeb3Provider() {
         let coinbaseProvider: any = window?.ethereum?.isCoinbaseWallet
