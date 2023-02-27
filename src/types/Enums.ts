@@ -40,5 +40,6 @@ export enum NetworkChain {
 export enum WalletApp {
     Coinbase = 'Coinbase',
     Metamask = 'Metamask',
-    WalletConnect = 'WalletConnect'
+    WalletConnect = 'WalletConnect',
+    MoonPay = 'MoonPay'
 }

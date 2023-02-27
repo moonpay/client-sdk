@@ -151,6 +151,11 @@ const walletSelectorHtml = `
             </div>
 
             <div class="hm-wallets">
+                <div class="hm-wallet" data-wallet="${WalletApp.MoonPay}" style="border: 1px solid #7D00FF;">
+                    <div class="hm-wallet-name">MoonPay</div>
+                    <div class="hm-wallet-logo"><img src="moonpay.svg" alt="MoonPay"/></div>
+                </div>
+
                 <div class="hm-wallet" data-wallet="${WalletApp.Metamask}">
                     <div class="hm-wallet-name">MetaMask</div>
                     <div class="hm-wallet-logo"><img src="https://hypermint.com/client-sdk/resources/metamask.svg" alt="MetaMask"/></div>
