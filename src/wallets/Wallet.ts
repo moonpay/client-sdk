@@ -5,6 +5,7 @@ import { BaseConfig } from '../types/BaseConfig';
 import MetaMaskWalletProvider from './providers/MetaMaskWalletProvider';
 import CoinbaseWalletProvider from './providers/CoinbaseWalletProvider';
 import WalletConnectProvider from './providers/WalletConnectProvider';
+import MoonPayWalletProvider from './providers/MoonPayWalletProvider';
 import { Web3Provider } from '@ethersproject/providers';
 import EVMChains from '../types/EVMChains';
 import { providers, Signer } from 'ethers';
@@ -18,7 +19,8 @@ export class Wallet {
         [WalletApp.WalletConnect]: new WalletConnectProvider(
             this._logger,
             this.config
-        )
+        ),
+        [WalletApp.MoonPay]: new MoonPayWalletProvider(this._logger)
     };
     private _provider: IWalletProvider;
     private _signer: Signer;
@@ -83,6 +85,7 @@ export class Wallet {
         this._web3Provider = await this._provider.getWeb3Provider();
 
         const network = await this._web3Provider.getNetwork();
+        console.log('Network =>', network);
 
         if (network.chainId !== this.config.networkChain) {
             this._logger.log('connect', 'Switching network...');
