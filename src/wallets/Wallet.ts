@@ -85,7 +85,6 @@ export class Wallet {
         this._web3Provider = await this._provider.getWeb3Provider();
 
         const network = await this._web3Provider.getNetwork();
-        console.log('Network =>', network);
 
         if (network.chainId !== this.config.networkChain) {
             this._logger.log('connect', 'Switching network...');
