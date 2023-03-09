@@ -1,5 +1,5 @@
 // @ts-ignore
-import { MoonpayWalletSDK } from '@moonpay/wallet-sdk';
+import { MoonpayWalletSDK } from '@moonpay/login-sdk';
 import WalletProvider from './WalletProvider';
 import { ethers } from 'ethers';
 
