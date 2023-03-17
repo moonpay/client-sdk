@@ -152,8 +152,13 @@ export class EVMContract extends BaseContract implements IContract {
         } else {
             if (tokenId === undefined) {
                 this.logger.log('getTokenBalance', 'Token id required', true);
+            } else if (tokenId < 0) {
+                this.logger.log(
+                    'getTokenBalance',
+                    'Token id must be non-negative',
+                    true
+                );
             }
-
             balance = await contract.balanceOf(
                 await signer.getAddress(),
                 tokenId
