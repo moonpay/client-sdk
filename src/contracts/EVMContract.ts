@@ -562,38 +562,37 @@ export class EVMContract extends BaseContract implements IContract {
     }
 
     public async getTransactionStatus(
-        transaction: Transaction
+        transaction: any
     ): Promise<TransactionStatus> {
-        const signer = await this.wallet.getSigner();
+        const receipt = await transaction.wait(); // wait for it to resolve to a receipt
 
         this.logger.log(
             'getTransactionStatus',
-            `Getting transaction status for ${transaction.hash}`
-        );
-
-        const receipt = await signer.provider.getTransactionReceipt(
-            transaction.hash
+            `${transaction.hash} is resolved. Getting transaction status...`
         );
 
         if (receipt) {
+            // failed
             if (receipt.status === 0) {
                 this.logger.log(
                     'getTransactionStatus',
-                    `${transaction.hash} : Failed`
+                    `${transaction.hash} is Failed`
                 );
                 return TransactionStatus.Failed;
             }
 
+            // succeeded
             this.logger.log(
                 'getTransactionStatus',
-                `${transaction.hash} : Complete`
+                `${transaction.hash} is Complete`
             );
             return TransactionStatus.Complete;
         }
 
+        // no receipt; still pending
         this.logger.log(
             'getTransactionStatus',
-            `${transaction.hash} : Pending`
+            `${transaction.hash} is Pending`
         );
         return TransactionStatus.Pending;
     }
@@ -605,7 +604,7 @@ export class EVMContract extends BaseContract implements IContract {
 
         this.logger.log(
             'waitForTransaction',
-            `Waiting for transaction ${transaction.hash}...`
+            `Waiting for transaction ${transaction.hash} to resolve...`
         );
 
         do {
@@ -615,11 +614,6 @@ export class EVMContract extends BaseContract implements IContract {
                 await GenericHelpers.sleep(1);
             }
         } while (status === TransactionStatus.Pending);
-
-        this.logger.log(
-            'waitForTransaction',
-            `Transaction ${transaction.hash}: ${status}`
-        );
 
         return status;
     }
