@@ -145,7 +145,9 @@ export class EVMContract extends BaseContract implements IContract {
 
         let balance;
 
-        if (this.config.contractType === NFTContractType.ERC721) {
+        const isERC721 = this.config.contractType === NFTContractType.ERC721;
+
+        if (isERC721) {
             balance = await contract.balanceOf(await signer.getAddress());
         } else {
             if (tokenId === undefined) {
@@ -166,7 +168,9 @@ export class EVMContract extends BaseContract implements IContract {
         const result = balance.toNumber();
         this.logger.log(
             'getTokenBalance',
-            `Token balance of ${tokenId}: ${result}`
+            isERC721
+                ? `Token balance: ${result}`
+                : `Token balance of ${tokenId}: ${result}`
         );
         return result;
     }
