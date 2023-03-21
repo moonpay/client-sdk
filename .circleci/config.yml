@@ -103,7 +103,6 @@ jobs:
           name: 'Upload to S3'
           command: |
             aws s3 sync ./dist s3://hypermint.com/client-sdk --acl public-read
-
 workflows:
   distribute:
     jobs:
