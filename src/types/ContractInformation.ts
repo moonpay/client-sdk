@@ -31,4 +31,5 @@ export interface ContractInformation {
     saleClosesAt?: Date;
     erc721Price?: number;
     erc721MaxPerTransaction?: number;
+    tokenCount?: number;
 }

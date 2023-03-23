@@ -210,6 +210,10 @@ export class BaseContract {
     public async getTokenMetadataUrl(tokenId: number): Promise<string> {
         const contract = await this.getContractInformation();
 
+        if (tokenId < 0 || tokenId >= contract.tokenCount) {
+            throw new Error('Invalid token id');
+        }
+
         const url =
             this._config.contractType === NFTContractType.ERC721
                 ? `${contract.metadata.tokenUrl}${tokenId}`
