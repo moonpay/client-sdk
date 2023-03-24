@@ -718,7 +718,7 @@ export class EVMContract extends BaseContract implements IContract {
         let contract: ethers.Contract;
 
         if (!ethers.utils.isAddress(this.config.contractAddress)) {
-            throw new Error('Contract address is not a valid Ethereum address');
+            this.logger.log('getEvmContract', 'Contract address is not a valid Ethereum address', true);
         }
 
         try {
