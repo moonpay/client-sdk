@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 /* eslint-disable @typescript-eslint/no-var-requires */
-const mix = require('laravel-mix');
+const mix = require('laravel-mix')
 
 // TODO: need to use mix.ts here to get proper typescript build checks
 mix.js('src/client-sdk-evm.ts', 'dist')
@@ -33,5 +33,6 @@ mix.js('src/client-sdk-evm.ts', 'dist')
                     loader: 'ts-loader'
                 }
             ]
-        }
-    });
+        },
+        devtool: 'source-map'
+    })
