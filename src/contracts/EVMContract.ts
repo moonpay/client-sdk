@@ -715,16 +715,27 @@ export class EVMContract extends BaseContract implements IContract {
         signer: Signer;
     }> {
         const signer = await this.wallet.getSigner();
+        let contract: ethers.Contract;
 
-        return {
-            signer,
-            contract: new ethers.Contract(
+        if (!ethers.utils.isAddress(this.config.contractAddress)) {
+            this.logger.log('getEvmContract', 'Contract address is not a valid Ethereum address', true);
+        }
+
+        try {
+            contract = new ethers.Contract(
                 this.config.contractAddress,
                 this.config.contractType === NFTContractType.ERC721
                     ? ERC721
                     : ERC1155,
                 signer
-            )
+            );
+        } catch (e) {
+            this.logger.log('getEVMContract', e.message, true);
+        }
+
+        return {
+            signer,
+            contract: contract
         };
     }
 
