@@ -211,7 +211,7 @@ export class BaseContract {
         const contract = await this.getContractInformation();
 
         if (tokenId < 0 || tokenId >= contract.tokenCount) {
-            throw new Error('Invalid token id');
+            this.logger.log('getTokenMetadataUrl', 'Invalid token id', true);
         }
 
         const url =
