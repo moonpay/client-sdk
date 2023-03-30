@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   slack: circleci/slack@4.10.1
+  gcp-cli: circleci/gcp-cli@2.4.1
 
 commands:
   restore_deps:
@@ -92,17 +93,24 @@ jobs:
   upload:
     resource_class: large
     docker:
-      - image: amazon/aws-cli
+      - image: cimg/base:stable
     steps:
-      - run:
-          name: Install tar utility
-          command: yum install -y tar gzip
+      - gcp-cli/install:
+          version: 397.0.0
       - attach_workspace:
           at: .
       - run:
-          name: 'Upload to S3'
+          name: 'GCP auth'
           command: |
-            aws s3 sync ./dist s3://hypermint.com/client-sdk --acl public-read
+            echo ${CIRCLE_OIDC_TOKEN} > `pwd`/.ci_job_jwt_file
+            gcloud iam workload-identity-pools create-cred-config ${GCP_WORKLOAD_IDENTITY_PROVIDER} \
+              --service-account="${GCP_SERVICE_ACCOUNT}" \
+              --output-file=`pwd`/.gcp_temp_cred.json \
+              --credential-source-file=`pwd`/.ci_job_jwt_file
+            gcloud auth login --cred-file=`pwd`/.gcp_temp_cred.json
+      - run:
+          name: Upload client-sdk to a GCS bucket
+          command: gsutil -m rsync -r ./dist/ gs://hypermint.com/client-sdk/
 
 workflows:
   distribute:
@@ -120,7 +128,7 @@ workflows:
       - upload:
           requires:
             - build
-          context: aws-config
+          context: gcp-workload-federation
           filters:
             branches:
               only:
