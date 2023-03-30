@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  slack: circleci/slack@4.10.1
+  slack: circleci/slack@4.12.1
   gcp-cli: circleci/gcp-cli@2.4.1
 
 commands:
