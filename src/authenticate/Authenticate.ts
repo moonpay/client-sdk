@@ -11,14 +11,23 @@ export class Authenticate {
     constructor(private _config: AuthenticateConfig) {
         this.logger.setConfig(_config);
 
-        this.wallet = new Wallet({
-            ..._config,
+        if (
+            !_config.networkChain ||
+            !_config.networkType ||
+            !_config.networkChain
+        ) {
+            this.wallet = new Wallet({
+                ..._config,
 
-            // Restrictions are applied on the server so these values can be defaulted
-            networkEnvironment: NetworkEnvironment.Mainnet,
-            networkType: NetworkType.Ethereum,
-            networkChain: NetworkChain.Ethereum
-        });
+                // Restrictions are applied on the server so these values can be defaulted
+                // defaulted if not supplied when initialising
+                networkEnvironment: NetworkEnvironment.Mainnet,
+                networkType: NetworkType.Ethereum,
+                networkChain: NetworkChain.Ethereum
+            });
+        } else {
+            this.wallet = new Wallet(_config);
+        }
     }
 
     public async authenticate(): Promise<string> {
