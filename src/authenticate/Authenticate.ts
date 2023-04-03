@@ -10,14 +10,12 @@ export class Authenticate {
 
     constructor(private _config: AuthenticateConfig) {
         this.logger.setConfig(_config);
-
         this.wallet = new Wallet({
             ..._config,
-
-            // Restrictions are applied on the server so these values can be defaulted
-            networkEnvironment: NetworkEnvironment.Mainnet,
-            networkType: NetworkType.Ethereum,
-            networkChain: NetworkChain.Ethereum
+            networkEnvironment:
+                _config.networkEnvironment ?? NetworkEnvironment.Mainnet,
+            networkType: _config.networkType ?? NetworkType.Ethereum,
+            networkChain: _config.networkChain ?? NetworkChain.Ethereum
         });
     }
 
