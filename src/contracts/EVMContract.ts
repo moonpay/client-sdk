@@ -122,7 +122,14 @@ export class EVMContract extends BaseContract implements IContract {
     }
 
     public async getSigner(): Promise<ethers.Signer | undefined> {
-        return this.wallet.getSigner();
+        const signer = await this.wallet.getSigner();
+        if (signer) {
+            this.logger.log(
+                'getSigner',
+                `Signer is ${await signer.getAddress()}`
+            );
+        }
+        return signer;
     }
 
     public setSigner(signer?: ethers.Signer): void {
@@ -718,7 +725,11 @@ export class EVMContract extends BaseContract implements IContract {
         let contract: ethers.Contract;
 
         if (!ethers.utils.isAddress(this.config.contractAddress)) {
-            this.logger.log('getEvmContract', 'Contract address is not a valid Ethereum address', true);
+            this.logger.log(
+                'getEvmContract',
+                'Contract address is not a valid Ethereum address',
+                true
+            );
         }
 
         try {
