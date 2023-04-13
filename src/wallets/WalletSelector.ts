@@ -124,6 +124,17 @@ const walletSelectorStylesheet = `
             margin: 20px 0px;
         }
 
+        .hm-disabled-wallet {
+            background: #343434;
+            cursor: not-allowed;
+            color: gray;
+            opacity: 0.3;
+        }
+
+        .hm-hidden-wallet {
+            display: none;
+        }
+
         @media screen and (min-width: 440px) {
             #hm-overlay {
                 align-items: center;
@@ -139,56 +150,117 @@ const walletSelectorStylesheet = `
     </style>
 `;
 
-const walletSelectorHtml = `
-    <div id="hm-overlay">
-        <div id="hm-dialog">
-            <div class="hm-dialog-header">
-                <h2 class="hm-dialog-header-title">Connect Wallet</h2>
-                <div id="hm-dialog-header-close">
-                    <span class="hm-dialog-close-line"></span>
-                    <span class="hm-dialog-close-line hm-dialog-close-line--last"></span>
-                </div>
-            </div>
+type Config = {
+    walletSelector?: {
+        wallets: {
+            name: string;
+            logo: string;
+            walletApp: WalletApp;
+            // meta
+            isDisabled?: boolean;
+        }[];
+    };
+};
 
-            <div class="hm-wallets">
-                <div class="hm-wallet" data-wallet="${WalletApp.MoonPay}" style="border: 1px solid #7D00FF;">
-                    <div class="hm-wallet-name">MoonPay</div>
-                    <div class="hm-wallet-logo"><img src="moonpay.svg" alt="MoonPay"/></div>
+const walletSelectorHtml = (config: Config) => {
+    const { walletSelector } = config;
+
+    if (!walletSelector) {
+        return '';
+    }
+
+    const { wallets } = walletSelector;
+
+    if (!wallets) {
+        return '';
+    }
+
+    const walletElements = wallets
+        .map((wallet) => {
+            const { name, logo, walletApp, isDisabled } = wallet;
+
+            return `
+                <div class="hm-wallet ${
+                    isDisabled && 'hm-disabled-wallet'
+                }" data-wallet="${walletApp}">
+                    <div class="hm-wallet-name">${name}</div>
+                    <div class="hm-wallet-logo"><img src="${logo}" alt="${name}"/></div>
+                </div>
+            `;
+        })
+        .join('');
+
+    return `
+        <div id="hm-overlay">
+            <div id="hm-dialog">
+                <div class="hm-dialog-header">
+                    <h2 class="hm-dialog-header-title">Connect Wallet</h2>
+                    <div id="hm-dialog-header-close">
+                        <span class="hm-dialog-close-line"></span>
+                        <span class="hm-dialog-close-line hm-dialog-close-line--last"></span>
+                    </div>
                 </div>
 
-                <div class="hm-wallet" data-wallet="${WalletApp.Metamask}">
-                    <div class="hm-wallet-name">MetaMask</div>
-                    <div class="hm-wallet-logo"><img src="https://hypermint.com/client-sdk/resources/metamask.svg" alt="MetaMask"/></div>
-                </div>
-
-                <div class="hm-wallet" data-wallet="${WalletApp.Coinbase}">
-                    <div class="hm-wallet-name">Coinbase Wallet</div>
-                    <div class="hm-wallet-logo"><img src="https://hypermint.com/client-sdk/resources/coinbase.png" alt="Coinbase Wallet"/></div>
-                </div>
-
-                <div class="hm-wallet" data-wallet="${WalletApp.WalletConnect}">
-                    <div class="hm-wallet-name">WalletConnect</div>
-                    <div class="hm-wallet-logo"><img src="https://hypermint.com/client-sdk/resources/walletconnect.svg" alt="WalletConnect"/></div>
+                <div class="hm-wallets">
+                    ${walletElements}
                 </div>
             </div>
         </div>
-    </div>
-`;
+    `;
+};
 
 export class WalletSelector {
     public static init() {
         const overlay = document.getElementById('hm-overlay');
         const dialog = document.getElementById('hm-dialog');
+        const selectorConfig = {
+            walletSelector: {
+                wallets: [
+                    {
+                        name: 'MoonPay',
+                        logo: 'https://hypermint.com/client-sdk/resources/moonpay.svg',
+                        walletApp: WalletApp.MoonPay,
+                        isDisabled: false
+                    },
+                    {
+                        name: 'WalletConnect',
+                        logo: 'https://hypermint.com/client-sdk/resources/walletconnect.svg',
+                        walletApp: WalletApp.WalletConnect,
+                        isDisabled: false
+                    },
+                    {
+                        name: 'MetaMask',
+                        logo: 'https://hypermint.com/client-sdk/resources/metamask.svg',
+                        walletApp: WalletApp.Metamask,
+                        isDisabled: !window.ethereum
+                    },
+                    {
+                        name: 'Coinbase Wallet',
+
+                        logo: 'https://hypermint.com/client-sdk/resources/coinbase.png',
+                        walletApp: WalletApp.Coinbase,
+                        isDisabled: false
+                    }
+                ]
+            }
+        };
 
         if (!overlay || !dialog) {
             document.body.insertAdjacentHTML(
                 'beforeend',
-                walletSelectorHtml + walletSelectorStylesheet
+                walletSelectorHtml(selectorConfig) + walletSelectorStylesheet
             );
         }
     }
 
-    public static selectWallet(): Promise<WalletApp> {
+    public static selectWallet(
+        configuredWallets: WalletApp[] = [
+            WalletApp.MoonPay,
+            WalletApp.WalletConnect,
+            WalletApp.Metamask,
+            WalletApp.Coinbase
+        ]
+    ): Promise<WalletApp> {
         return new Promise((resolve, reject) => {
             const overlay = document.getElementById('hm-overlay');
             const dialog = document.getElementById('hm-dialog');
@@ -199,6 +271,20 @@ export class WalletSelector {
             const closeButton = document.getElementById(
                 'hm-dialog-header-close'
             );
+            // hide any wallets that are not configured
+            const configuredWalletsElements =
+                document.querySelectorAll('.hm-wallet');
+
+            for (const wallet of configuredWalletsElements) {
+                const walletApp = wallet.getAttribute(
+                    'data-wallet'
+                ) as WalletApp;
+
+                console.log(walletApp, configuredWallets.includes(walletApp));
+                if (!configuredWallets.includes(walletApp)) {
+                    wallet.classList.add('hm-hidden-wallet');
+                }
+            }
 
             const onClose = () => {
                 WalletSelector.closeSelector();
@@ -211,6 +297,13 @@ export class WalletSelector {
             const wallets = document.querySelectorAll('.hm-wallet');
 
             for (const wallet of wallets) {
+                // skip disabled wallets
+                if (
+                    wallet.classList.contains('hm-hidden-wallet') ||
+                    wallet.classList.contains('hm-disabled-wallet')
+                ) {
+                    continue;
+                }
                 wallet.addEventListener('click', () => {
                     return resolve(
                         wallet.getAttribute('data-wallet') as WalletApp

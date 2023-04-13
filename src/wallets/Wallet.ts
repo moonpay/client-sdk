@@ -69,12 +69,17 @@ export class Wallet {
         return this._web3Provider.provider;
     }
 
-    public async connect(walletApp?: WalletApp) {
+    public async connect(
+        walletApp?: WalletApp,
+        walletSelectOptions?: WalletApp[]
+    ) {
         this._logger.log('connect', 'Connecting...');
 
         if (!walletApp) {
             try {
-                walletApp = await WalletSelector.selectWallet();
+                walletApp = await WalletSelector.selectWallet(
+                    walletSelectOptions
+                );
             } catch (e) {
                 this._logger.log('connect', 'Failed selecting wallet', true, e);
             }
