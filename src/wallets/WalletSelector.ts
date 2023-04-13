@@ -280,7 +280,6 @@ export class WalletSelector {
                     'data-wallet'
                 ) as WalletApp;
 
-                console.log(walletApp, configuredWallets.includes(walletApp));
                 if (!configuredWallets.includes(walletApp)) {
                     wallet.classList.add('hm-hidden-wallet');
                 }
