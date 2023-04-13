@@ -5,4 +5,5 @@ export interface IConnectedWallet {
         value: string;
         formatted: string;
     };
+    walletUserMetadata?: object;
 }

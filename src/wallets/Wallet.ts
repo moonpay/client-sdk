@@ -45,6 +45,13 @@ export class Wallet {
         this._signer = signer;
     }
 
+    public getWalletUserData() {
+        if (!this._provider.getWeb3Provider) {
+            throw new Error('Wallet not connected');
+        }
+        return this._provider.getWalletUserData();
+    }
+
     public async getWeb3Provider(): Promise<Web3Provider> {
         if (!this._web3Provider) {
             await this.connect();
