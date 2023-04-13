@@ -121,6 +121,14 @@ export class EVMContract extends BaseContract implements IContract {
         }
     }
 
+    public async configuredConnect(walletSelectOptions?: WalletApp[]) {
+        if (!this.wallet.isConnected) {
+            this.fetchContractPromise && (await this.fetchContractPromise);
+            await this.wallet.connect(undefined, walletSelectOptions);
+            await this.registerChangeEventListeners();
+        }
+    }
+
     public async getSigner(): Promise<ethers.Signer | undefined> {
         const signer = await this.wallet.getSigner();
         if (signer) {
