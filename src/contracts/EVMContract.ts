@@ -269,6 +269,45 @@ export class EVMContract extends BaseContract implements IContract {
         }
     }
 
+    public async getTokenClaimStatus(tokenCode: string): Promise<boolean> {
+        if (!this.wallet.isConnected) {
+            return false;
+        }
+
+        try {
+            // eslint-disable-next-line prefer-const
+            let { signer } = await this.getEVMContract();
+            const address = await signer.getAddress();
+
+            const response = await fetch(
+                `https://crypto-api.moonpay.com/api/v1/claim-nft/${tokenCode}?ownerAddress=${address}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            const data = await response.json();
+
+            this.logger.log(
+                'getTokenClaimStatus',
+                `Token claim status for ${tokenCode}`,
+                false,
+                data
+            );
+
+            return data.status === 'claimed';
+        } catch (e) {
+            this.logger.log(
+                'getTokenClaimStatus',
+                `Failed to get claim status: ${e.message}`
+            );
+
+            return false;
+        }
+    }
+
     public async buy(
         amount: number,
         tokenId?: number,
