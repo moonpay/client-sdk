@@ -61,19 +61,24 @@ export class EVMContract extends BaseContract implements IContract {
                 ? await contract.balanceOf(address)
                 : await signer.getBalance();
 
+            const walletUserMetadata =
+                (await this.wallet.getWalletUserData()) || {};
+
             return {
                 isConnected: true,
                 address,
                 balance: {
                     value: balance,
                     formatted: formatEther(balance)
-                }
+                },
+                walletUserMetadata
             };
         } catch (e) {
             return {
                 isConnected: false,
                 address: undefined,
-                balance: undefined
+                balance: undefined,
+                walletUserMetadata: undefined
             };
         }
     }
@@ -138,6 +143,17 @@ export class EVMContract extends BaseContract implements IContract {
             );
         }
         return signer;
+    }
+
+    public getWalletUserData(): object | undefined {
+        const userWalletData = this.wallet.getWalletUserData();
+        if (userWalletData) {
+            this.logger.log(
+                'getWalletUserData',
+                `Wallet user data ${JSON.stringify(userWalletData, null, 4)}`
+            );
+        }
+        return userWalletData;
     }
 
     public setSigner(signer?: ethers.Signer): void {
