@@ -61,8 +61,19 @@ export class EVMContract extends BaseContract implements IContract {
                 ? await contract.balanceOf(address)
                 : await signer.getBalance();
 
-            const walletUserMetadata =
-                (await this.wallet.getWalletUserData()) || {};
+            let walletUserMetadata = {};
+            try {
+                walletUserMetadata = await this.wallet.getWalletUserData();
+            } catch (error) {
+                // Don't throw an error if we can't get wallet user data
+                // since that's a MoonPay specific thing.
+                // (wallet data outside of standard EIP-1193)
+            }
+
+            this.logger.log(
+                'getConnectedWallet',
+                `Connected wallet ${address} with balance ${balance}`
+            );
 
             return {
                 isConnected: true,
@@ -74,6 +85,7 @@ export class EVMContract extends BaseContract implements IContract {
                 walletUserMetadata
             };
         } catch (e) {
+            this.logger.log('getConnectedWallet', e.message, true);
             return {
                 isConnected: false,
                 address: undefined,
