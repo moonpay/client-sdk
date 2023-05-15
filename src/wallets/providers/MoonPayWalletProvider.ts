@@ -11,7 +11,8 @@ export default class MoonPayWalletProvider extends WalletProvider {
             loginDomain: 'https://buy-sandbox.moonpay.com',
             secureWalletDomain: 'https://web3.moonpay.com',
             apiKey: 'pk_test_123',
-            initialNetwork: 80001
+            initialNetwork: 80001,
+            headless: true
         });
 
         this.sdk = sdk;
