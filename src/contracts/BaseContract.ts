@@ -19,9 +19,16 @@ export class BaseContract {
         this.logger.setConfig(_config);
     }
 
-    public async getMoonPayWidgetUrl(tokenId: number): Promise<string> {
+    public async getMoonPayWidgetUrl(
+        tokenId: number,
+        walletAddress?: string
+    ): Promise<string> {
         try {
-            const url = await HMAPI.getMoonPayWidgetUrl(this._config, tokenId);
+            const url = await HMAPI.getMoonPayWidgetUrl(
+                this._config,
+                tokenId,
+                walletAddress
+            );
 
             this.logger.log(
                 'getMoonPayWidgetUrl',
@@ -218,9 +225,9 @@ export class BaseContract {
             this._config.contractType === NFTContractType.ERC721
                 ? `${contract.metadata.tokenUrl}${tokenId}`
                 : contract.metadata.tokenUrl.replace(
-                      '{id}',
-                      tokenId.toString()
-                  );
+                    '{id}',
+                    tokenId.toString()
+                );
 
         this.logger.log(
             'getTokenMetadataUrl',
@@ -232,11 +239,10 @@ export class BaseContract {
 
     public getTransactionExplorerUrl(hash: string): string {
         if (this._config.networkType === NetworkType.Solana) {
-            return `https://solscan.io/tx/${hash}${
-                this._config.networkEnvironment === NetworkEnvironment.Testnet
-                    ? '?cluster=devnet'
-                    : ''
-            }`;
+            return `https://solscan.io/tx/${hash}${this._config.networkEnvironment === NetworkEnvironment.Testnet
+                ? '?cluster=devnet'
+                : ''
+                }`;
         }
 
         switch (this._config.networkChain) {

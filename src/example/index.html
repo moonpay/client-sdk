@@ -146,17 +146,17 @@
     } = HyperMint;
 
     const contract = new Contract({
-      contractId: 'bf19ddc9-05ab-44cb-ba43-a777de280b3a',
+      // Enter your contract Id here
+      contractId: '',
       enableLogging: true,
       logger,
-      hmURL: "http://localhost:4001/v1"
-    });
+  });
 
     const authenticate = new Authenticate({
-      appId: '075f57a8-65dc-477e-9a8e-0ea19bbdbd52',
+      // Enter your authenticate appId here
+      appId: '',
       enableLogging: true,
       logger,
-      hmURL: "http://localhost:4001/v1"
     });
   </script>
 
@@ -194,7 +194,12 @@
     }
 
     async function openWidget(tokenId) {
-      window.open(await contract.getMoonPayWidgetUrl(tokenId));
+      window.open(
+        await contract.getMoonPayWidgetUrl(
+          tokenId,
+          (await contract.getConnectedWallet()).address
+        )
+      );
     }
   </script>
 </body>
