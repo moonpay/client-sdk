@@ -225,9 +225,9 @@ export class BaseContract {
             this._config.contractType === NFTContractType.ERC721
                 ? `${contract.metadata.tokenUrl}${tokenId}`
                 : contract.metadata.tokenUrl.replace(
-                    '{id}',
-                    tokenId.toString()
-                );
+                      '{id}',
+                      tokenId.toString()
+                  );
 
         this.logger.log(
             'getTokenMetadataUrl',
@@ -239,10 +239,11 @@ export class BaseContract {
 
     public getTransactionExplorerUrl(hash: string): string {
         if (this._config.networkType === NetworkType.Solana) {
-            return `https://solscan.io/tx/${hash}${this._config.networkEnvironment === NetworkEnvironment.Testnet
-                ? '?cluster=devnet'
-                : ''
-                }`;
+            return `https://solscan.io/tx/${hash}${
+                this._config.networkEnvironment === NetworkEnvironment.Testnet
+                    ? '?cluster=devnet'
+                    : ''
+            }`;
         }
 
         switch (this._config.networkChain) {

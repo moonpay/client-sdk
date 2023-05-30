@@ -143,7 +143,9 @@ export class HMAPI {
     ): Promise<string> {
         const url = `${HMAPI.getHMBaseUrl(config)}/moonpay/widget/${
             config.contractId
-        }/${tokenId}${walletAddress ? `?walletAddress=${walletAddress}` : ""}`;
+        }/${tokenId}${
+            walletAddress ? `?walletAddress=${walletAddress}` : ""
+        }`;
 
         const result = await fetch(url);
 
