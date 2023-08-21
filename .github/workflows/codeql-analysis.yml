@@ -1,36 +1,45 @@
-# This is an automatically generated file, please do not edit!
-# If you want to make any changes see: https://github.com/moonpay/ghsec
-
-name: CodeQL
+name: 'CodeQL'
 
 on:
   push:
-    branches:
-      - main
-    paths-ignore:
-      - test/**
-      - tests/**
-      - '**/*.test.ts'
-      - '**/*.md'
-      - '**/*.txt'
+    branches: [main]
   pull_request:
-    branches:
-      - main
-    paths-ignore:
-      - test/**
-      - tests/**
-      - '**/*.test.ts'
-      - '**/*.md'
-      - '**/*.txt'
+    # The branches below must be a subset of the branches above
+    branches: [main]
   schedule:
-    - cron: 45 2 * * 3
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+    - cron: '0 9 * * 1'
 
 jobs:
   analyze:
-    if: ${{ github.actor != 'renovate[bot]' }}
-    uses: moonpay/ghsec/.github/workflows/codeql-analysis-shared.yml@v1.0.0
-    secrets: inherit
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+
+      # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
+      # If this step fails, then you should remove it and run the build manually (see below)
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+
+      # ℹ️ Command-line programs to run using the OS shell.
+      # 📚 https://git.io/JvXDl
+
+      # ✏️ If the Autobuild fails above, remove it and uncomment the following three lines
+      #    and modify them (or add more) to build your code if your project
+      #    uses a compiled language
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
