@@ -1,6 +1,35 @@
 {
-  "description": "This is an automatically generated file, please do not edit! If you want to make any changes see: https://github.com/moonpay/ghsec",
-  "extends": [
-    "github\u003emoonpay/ghsec//config/shared/renovate/default"
-  ]
+    "description" : "This is an automatically generated file, please do not edit!",
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "schedule": ["before 7am every weekday"],
+    "timezone": "Europe/London",
+    "extends": [
+      "config:recommended"
+    ],
+    "labels": ["⬆️ Dependencies"],
+    "packageRules": [
+        {
+          "enabled": false,
+          "matchPackagePatterns": ["*"]
+        }
+    ],
+    "ignorePaths": [
+        "**/node_modules/**",
+        "**/bower_components/**",
+        "**/vendor/**",
+        "**/examples/**",
+        "**/__fixtures__/**"
+    ],
+    "vulnerabilityAlerts": {
+        "enabled": true,
+        "reviewers": [
+            "team:product-security-team"
+        ],
+        "labels": [
+            "🔒 Security"
+        ],
+        "schedule": "at any time",
+        "rebaseWhen": "conflicted"
+    },
+    "osvVulnerabilityAlerts": true
 }
