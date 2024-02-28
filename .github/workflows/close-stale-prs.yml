@@ -9,7 +9,7 @@ on:
 
 jobs:
   stale:
-    runs-on: ubuntu-latest
+    runs-on: moonpay-github-actions-runner
     steps:
       - uses: actions/stale@v8
         with:
